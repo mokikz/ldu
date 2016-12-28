@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--<html xmlns="http://www.w3.org/1999/xhtml" manifest="uhr.appcache">-->
+<html xmlns="http://www.w3.org/1999/xhtml" manifest="uhr.manifest">
+<head>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="viewport" content="user-scalable=no, width=device-width" />
+<link rel="apple-touch-icon" href="icons/app_60x60.png">
+<link rel="apple-touch-icon" sizes="76x76" href="icons/app_76x76.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icons/app_120x120.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/app_152x152.png">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Lern die Uhr</title>
+<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/scripts/clock.js"></script>
+<script src="/scripts/movie.js"></script>
+<script src="/scripts/cache.js"></script>
+<link rel="stylesheet" media="all and (orientation:portrait)" href="ldu-portrait.css" />
+<link rel="stylesheet" media="all and (orientation:landscape)" href="ldu-landscape.css" />
+<script type="application/x-javascript">
+
+var tasks = {
+    "worlds": [
+        {"world": "Start", 
+         "levels": [
+           {"label": "Stell die Uhr", start: "12:00", ziel: "03:00"},
+           {"label": "Stell die Uhr", start: "03:00", ziel: "07:00"},
+           {"label": "Stell die Uhr", start: "07:00", ziel: "12:00"},
+           ] },
+        {"world": "Nachmittag", 
+         "levels": [
+           {"label": "Stell die Uhr", start: "12:00", ziel: "13:00"},
+           {"label": "Stell die Uhr", start: "13:00", ziel: "17:00"},
+           {"label": "Stell die Uhr", start: "17:00", ziel: "16:00"},
+           ] },
+
+    ]
+};
+
+function initialize() {
+      var canvas = document.getElementById('mainarea');
+      };
+
+    function resizeCanvas() {
+      var canvas = document.getElementById('mainarea');
+      var myDiv = document.getElementById('maindiv');
+      var oldSizeX = canvas.width;
+      var oldSizeY = canvas.height;
+      canvas.width = myDiv.offsetWidth;
+      canvas.height = myDiv.offsetHeight;
+      var width  = canvas.width;
+      var height  = canvas.height;
+      var scaleX = oldSizeX / width; 
+      var scaleY = oldSizeY / height;
+      if (width >= height) {
+        size = height;
+        }
+      else {
+        size = width;
+        }
+      radius = Math.floor(size/2);
+      centerX = Math.floor(width/2);
+      centerY = Math.floor(height/2);
+      draw();
+      }
+
+    function draw() {
+      var canvas = document.getElementById('mainarea');
+      }
+
+</script>
+</head>
+<body onload="initialize()">
+  <!-- Start page container -->
+<div id="game">
+<header>
+<div class="group">
+<div class="left"><div class="panel left" id='score'>00</div></div>
+<!--<div class="left"><div class="panel center" id='online'>xxx</div></div>-->
+<div class="right"><div class="panel right" id='help'>12:00</div></div>
+</div> <!--class="group"-->
+</header>
+
+<div class="group">
+  <!-- Right content -->
+  <div class="leftcol" id="maindiv">
+
+      <canvas id="mainarea">The &lt;canvas&gt; element is not supported by your browser!</canvas>
+
+
+<script type="application/x-javascript">
+  window.addEventListener('resize', resizeCanvas, false);
+
+</script>
+
+</div>
+</div> <!--class="group"-->
+<!-- footer -->
+<footer>
+<div class="panel bottom">
+<div class="horizontalgroup">
+<div id='task'><p>Stelle die Uhr auf 12:00 Uhr</p></div>
+<div id="controls">
+<img class="bigbutton" src="images/ok.png"/>
+<div> <!-- controls -->
+</div> <!--class="group"-->
+</div> <!-- panel center -->
+</footer>
+</div> <!--id="game"-->
+</body>
+

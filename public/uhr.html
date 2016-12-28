@@ -12,6 +12,7 @@
 <title>Lern die Uhr</title>
 <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/scripts/timewords.js"></script>
 <style type="text/css">
 #mainarea {
     position: relative;
@@ -34,7 +35,7 @@ div.rightcol {
     height: 90%;
 }
 p {
-  font-size: 3em;
+  font-size: 1em;
   font-weight: bold;
   font-family: sans-serif;
   text-align: center;
@@ -65,6 +66,7 @@ var tasks = {
     ]
 };
 
+    var Hint = 0;
     var size = 0;
     var radius = 0;
     var centerX = 0;
@@ -85,6 +87,7 @@ var tasks = {
     var pendingHour = 0;
     var newHour = 0;
     var attention = 0;
+    var TimeWords = new Format.TimeWords();
 
 var cacheStatusValues = [];
 cacheStatusValues[0] = 'uncached';
@@ -253,7 +256,7 @@ function calculatePhi(mouseX,mouseY) {
     }
 
 function showTime(mouseX, mouseY) {
-    if (debug)
+    if (Hint)
 	{
         // translate to degree
         // alphaDeg = Math.round(alpha * rad2deg);
@@ -271,9 +274,12 @@ function showTime(mouseX, mouseY) {
         var displayMinute = minute;
         if (minute < 10) {displayMinute = "0" + minute};
         if (minute == 0) {displayMinute = "00"};
-	debug.innerHTML = displayHour + ":" + displayMinute; 
-      
+	debug.innerHTML = displayHour + ":" + displayMinute + "<br/>" + TimeWords.getTime(hour,minute) + "<br/>" + TimeWords.getQuarters(hour, minute) + "<br/>" + TimeWords.getEnglishQuarters(hour, minute) ; 
+        
       }
+    else {
+       debug.innerHTML = ''; 
+        }
     }
 
 function initialize() {
@@ -488,6 +494,16 @@ function linear(progress) {
 }
 
 function showHint() {
+var hintButton = document.getElementById('ShowHint');
+if (Hint) {
+    Hint = 0;
+    hintButton.value = 'Hilfe anzeigen';
+    }
+else { 
+    Hint = 1;
+    hintButton.value = 'Hilfe verstecken';
+    }
+showTime();
 
 }
 
@@ -500,8 +516,9 @@ function submitResult () {
 <body onload="initialize()">
   <!-- Start page container -->
 <div class="rightcol">
-  <p id="debug">00:00</p> 
-<input type='button' name='UhrGestellt' value='Uhr gestellt' onclick='submitResult'/> 
+  <p id="debug"></p> 
+<input type='button' id='UhrGestellt' value='Uhr gestellt' onclick='submitResult();'/> 
+<input type='button' id='ShowHint' value='Hilfe einblenden' onclick='showHint();'/> 
 </div>
   <!-- Right content -->
   <div class="leftcol" id="maindiv">
