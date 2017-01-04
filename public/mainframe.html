@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--<html xmlns="http://www.w3.org/1999/xhtml" manifest="uhr.appcache">-->
-<html xmlns="http://www.w3.org/1999/xhtml" manifest="uhr.manifest">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -14,8 +14,11 @@
 <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/scripts/clock.js"></script>
+<script src="/scripts/model.js"></script>
 <script src="/scripts/movie.js"></script>
 <script src="/scripts/cache.js"></script>
+<script src="/scripts/timewords.js"></script>
+
 <link rel="stylesheet" media="all and (orientation:portrait)" href="ldu-portrait.css" />
 <link rel="stylesheet" media="all and (orientation:landscape)" href="ldu-landscape.css" />
 <script type="application/x-javascript">
@@ -37,36 +40,38 @@ var tasks = {
 
     ]
 };
+var model = new LernDieUhr.Model;
+var clock = new LernDieUhr.Clock;
+var TimeWords = new Format.TimeWords();
 
 function initialize() {
       var canvas = document.getElementById('mainarea');
+      var myDiv = document.getElementById('maindiv');
+      canvas.width = myDiv.offsetWidth;
+      canvas.height = myDiv.offsetHeight;
+      model.setValue('Canvas', canvas);
+      model.setValue('Hint', false);
+      var size = Math.min(canvas.height, canvas.width);
+      var centerX = Math.floor(canvas.width/2);
+      var centerY = Math.floor(canvas.height/2);
+      clock.init(model, size, centerX, centerY); 
+      clock.draw();
+
+      // connect click on help button
+      var hintButton = document.getElementById('help');
+      hintButton.addEventListener('click', showHint, false);
       };
 
     function resizeCanvas() {
       var canvas = document.getElementById('mainarea');
       var myDiv = document.getElementById('maindiv');
-      var oldSizeX = canvas.width;
-      var oldSizeY = canvas.height;
-      canvas.width = myDiv.offsetWidth;
-      canvas.height = myDiv.offsetHeight;
-      var width  = canvas.width;
-      var height  = canvas.height;
-      var scaleX = oldSizeX / width; 
-      var scaleY = oldSizeY / height;
-      if (width >= height) {
-        size = height;
-        }
-      else {
-        size = width;
-        }
-      radius = Math.floor(size/2);
-      centerX = Math.floor(width/2);
-      centerY = Math.floor(height/2);
+      clock.resizeCanvas();
       draw();
       }
 
     function draw() {
       var canvas = document.getElementById('mainarea');
+      clock.draw();
       }
 
 </script>
@@ -78,7 +83,7 @@ function initialize() {
 <div class="group">
 <div class="left"><div class="panel left" id='score'>00</div></div>
 <!--<div class="left"><div class="panel center" id='online'>xxx</div></div>-->
-<div class="right"><div class="panel right" id='help'>12:00</div></div>
+<div class="right"><div class="panel right" id='help'><br/></div></div>
 </div> <!--class="group"-->
 </header>
 
@@ -91,6 +96,46 @@ function initialize() {
 
 <script type="application/x-javascript">
   window.addEventListener('resize', resizeCanvas, false);
+
+function showTime() {
+    var hintControl = document.getElementById('help');
+    if (model.getValue('Hint'))
+	{
+        document.addEventListener('DataChanged', showTime, false);
+        setTimeout(showHint,3000); //automatically hide hint
+        var minute;
+        var hour;
+        [hour, minute] = model.getTime();
+        var displayHour = hour;
+        var displayMinute = minute;
+        if (hour < 10) {displayHour = "0" + hour};
+        if (hour == 0) {displayHour = "00"};
+        if (minute < 10) {displayMinute = "0" + minute};
+        if (minute == 0) {displayMinute = "00"};
+	//hintControl.innerHTML = displayHour + ":" + displayMinute + " " + TimeWords.getTime(hour,minute) + "<br/>" + TimeWords.getQuarters(hour, minute) + "<br/>" + TimeWords.getEnglishQuarters(hour, minute) ; 
+        var text = displayHour + ":" + displayMinute;
+        if (TimeWords.getQuarters(hour, minute)) {
+	    text += " " + TimeWords.getQuarters(hour, minute) + " oder " + TimeWords.getEnglishQuarters(hour, minute); 
+            }
+	hintControl.innerHTML = text; 
+        }
+    else {
+        hintControl.innerHTML = '<br/>'; 
+        document.removeEventListener('DataChanged', showTime, false);
+        }
+    }
+
+function showHint() {
+if (model.getValue('Hint')) {
+    model.setValue("Hint", 0);
+    }
+else { 
+    model.setValue("Hint", 1);
+    }
+showTime();
+
+}
+  
 
 </script>
 
