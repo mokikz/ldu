@@ -9,57 +9,140 @@
 <link rel="apple-touch-icon" sizes="76x76" href="icons/app_76x76.png">
 <link rel="apple-touch-icon" sizes="120x120" href="icons/app_120x120.png">
 <link rel="apple-touch-icon" sizes="152x152" href="icons/app_152x152.png">
+<link rel="apple-touch-startup-image" href="/images/loading.png">
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <title>Lern die Uhr</title>
-<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="/scripts/jquery-1.11.2.min.js"></script>
+<script src="/scripts/js.cookie.js"></script>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/scripts/data.js"></script>
+<script src="/scripts/cache.js"></script>
 <script src="/scripts/clock.js"></script>
+<script src="/scripts/character.js"></script>
+<script src="/scripts/loader.js"></script>
+<script src="/scripts/game.js"></script>
+<script src="/scripts/persistence.js"></script>
 <script src="/scripts/model.js"></script>
 <script src="/scripts/movie.js"></script>
-<script src="/scripts/cache.js"></script>
+<script src="/scripts/score.js"></script>
 <script src="/scripts/timewords.js"></script>
 
 <link rel="stylesheet" media="all and (orientation:portrait)" href="ldu-portrait.css" />
 <link rel="stylesheet" media="all and (orientation:landscape)" href="ldu-landscape.css" />
 <script type="application/x-javascript">
 
-var tasks = {
-    "worlds": [
-        {"world": "Start", 
-         "levels": [
-           {"label": "Stell die Uhr", start: "12:00", ziel: "03:00"},
-           {"label": "Stell die Uhr", start: "03:00", ziel: "07:00"},
-           {"label": "Stell die Uhr", start: "07:00", ziel: "12:00"},
-           ] },
-        {"world": "Nachmittag", 
-         "levels": [
-           {"label": "Stell die Uhr", start: "12:00", ziel: "13:00"},
-           {"label": "Stell die Uhr", start: "13:00", ziel: "17:00"},
-           {"label": "Stell die Uhr", start: "17:00", ziel: "16:00"},
-           ] },
-
-    ]
-};
+var persistence = new LernDieUhr.Persistence;
 var model = new LernDieUhr.Model;
 var clock = new LernDieUhr.Clock;
 var TimeWords = new Format.TimeWords();
+var game = new LernDieUhr.Game;
+var items = ['images/intro-start.jpg', //0
+             'images/intro3.jpg', //1
+             'images/klopfklopf.png', //2
+             'images/intro3.jpg', //3
+             'images/intro4.jpg', //4
+             'images/klopfklopf.png', //5
+             'images/intro5.jpg', //6
+             'images/intro6.jpg', //7
+             'images/intro7.jpg', //8
+             'images/anleitung1.jpg', //9
+             'images/anleitung2.jpg', //10
+             ];
+
+function checkContinue(items) {
+  game.hideDialog("Loading");
+  if (! model.initialized()) {
+    // no need to ask for game restart, we are right at the beginning
+    game.hideDialog("ContinueGame");
+    playIntro(items);
+    }
+  //game.hideDialog("movie");
+  }
+
+// callback after all images loaded
+function playIntro (items) {
+    // hide load screen
+    game.hideDialog("ContinueGame");
+    game.hideDialog("Loading");
+    // initialize intro movie
+    // Zoom (duration, toX, toY, width, height, translatex, translatey, fade)
+    // Pann (context, img, duration,  X,   Y, width, height, translatex, translatey )
+    var scenes = [["Fade", 2500, 0,0,0,0,true], //0
+                  ["FadeIn", 2000, 0, true], //1
+                  ["Fade", 2000, 0,0,0,0,true], //2
+                  ["Zoom", 4000, 375, 640, 225, 160, false], //3
+                  ["Fade", 1500, 0,0,0,0,true], //4
+                  ["Fade", 2000, 0,0,0,0,true], //5
+                  ["FadeIn", 3000, 0, true], //6
+                  ["Fade", 5000, 0, true], //7
+                  ["Fade", 7000, 0, true], //8
+                  //["Pann", 5000, 1540,0, 1440, 1080, -1540, 0],
+                  ["Fade", 5000, 0,0,0,0,true], //9
+                  ["Fade", 5000, 0,0,0,0,true], //10
+              ];
+
+    var canvas = document.getElementById('moviearea');
+    var context = canvas.getContext('2d');
+    Movie.init(context, selectPlayer);
+    for (var i=0; i<scenes.length; i++) {
+        var scene;
+        var sceneData = scenes[i];
+        var typeOfScene = sceneData.shift();
+        Movie.addScene(typeOfScene, items[i], sceneData);
+        }
+    Movie.play();
+};
+
+function restartGame() {
+  model.reset();
+  playIntro(items);
+}
+
+function selectPlayer() {
+      var canvas = model.getValue('Canvas');
+      var context = canvas.getContext('2d');
+      context.clearRect(0,0, canvas.width, canvas.height);
+      // hide movie background
+      game.hideDialog("ContinueGame");
+      game.hideDialog("movie");
+
+      var size = Math.min(canvas.height, canvas.width);
+      //var centerX = Math.floor(canvas.width/2);
+      var centerX = Math.floor(canvas.width - size/2);
+      var centerY = Math.floor(canvas.height- size/2);
+
+      clock.init(model, size, centerX, centerY); 
+      clock.draw();
+      game.init(model);
+}
+
+// callback after each image loaded
+function loadImage(items, i, onComplete) {
+    var onLoad = function (e) {
+        e.target.removeEventListener("load", onLoad);
+
+        // notify that we're done.
+        onComplete(items, i);
+    }
+    var img = new Image();
+    img.addEventListener("load", onLoad, false);
+    img.src = items[i];
+    // replace img name by object
+    items[i] = img;
+}
 
 function initialize() {
       var canvas = document.getElementById('mainarea');
       var myDiv = document.getElementById('maindiv');
+      model.restore();
       canvas.width = myDiv.offsetWidth;
       canvas.height = myDiv.offsetHeight;
       model.setValue('Canvas', canvas);
       model.setValue('Hint', false);
-      var size = Math.min(canvas.height, canvas.width);
-      var centerX = Math.floor(canvas.width/2);
-      var centerY = Math.floor(canvas.height/2);
-      clock.init(model, size, centerX, centerY); 
-      clock.draw();
-
-      // connect click on help button
+            // connect click on help button
       var hintButton = document.getElementById('help');
       hintButton.addEventListener('click', showHint, false);
+      loader(items, loadImage, checkContinue);
       };
 
     function resizeCanvas() {
@@ -78,6 +161,15 @@ function initialize() {
 </head>
 <body onload="initialize()">
   <!-- Start page container -->
+<div id="Loading">
+<img class="dialogImage" src="images/loading.jpg">
+</div> <!-- id="Loading" -->
+<div id="ContinueGame">
+<ul>
+<li><div onclick="restartGame()" class="neu"><p class="zentriert">Neues Spiel</p></div></li>
+<li><div onclick="selectPlayer()" class="weiter"><p class="zentriert">Weiterspielen</p></div></li>
+</ul>
+</div> <!-- id="ContinueGame" -->
 <div id="game">
 <header>
 <div class="group">
@@ -87,13 +179,12 @@ function initialize() {
 </div> <!--class="group"-->
 </header>
 
-<div class="group">
+<div class="group" id="maindiv">
   <!-- Right content -->
-  <div class="leftcol" id="maindiv">
+  <div class='layer2'></div>
+  <div class="layer3">
 
       <canvas id="mainarea">The &lt;canvas&gt; element is not supported by your browser!</canvas>
-
-
 <script type="application/x-javascript">
   window.addEventListener('resize', resizeCanvas, false);
 
@@ -102,7 +193,7 @@ function showTime() {
     if (model.getValue('Hint'))
 	{
         document.addEventListener('DataChanged', showTime, false);
-        setTimeout(showHint,3000); //automatically hide hint
+        setTimeout(hideHint,3000); //automatically hide hint
         var minute;
         var hour;
         [hour, minute] = model.getTime();
@@ -126,32 +217,49 @@ function showTime() {
     }
 
 function showHint() {
-if (model.getValue('Hint')) {
-    model.setValue("Hint", 0);
-    }
-else { 
     model.setValue("Hint", 1);
-    }
-showTime();
-
+    showTime();
 }
-  
+
+function hideHint() {
+    model.setValue("Hint", 0);
+    showTime();
+}
 
 </script>
 
 </div>
 </div> <!--class="group"-->
+<div id='movie' class="layer4">
+      <canvas id="moviearea">The &lt;canvas&gt; element is not supported by your browser!</canvas>
+</div>
 <!-- footer -->
 <footer>
 <div class="panel bottom">
 <div class="horizontalgroup">
-<div id='task'><p>Stelle die Uhr auf 12:00 Uhr</p></div>
+<div id='task'><p/></div>
 <div id="controls">
-<img class="bigbutton" src="images/ok.png"/>
+<img id="okButton" class="bigbutton" src="images/ok.png"/>
 <div> <!-- controls -->
 </div> <!--class="group"-->
 </div> <!-- panel center -->
 </footer>
 </div> <!--id="game"-->
+<div id="LevelDone" class="Dialog">
+<img class="dialogImage" src="images/success.png">
+<h2 class="success" id="LevelDoneText"> Gut gemacht </h2> 
+</div> <!-- id="LevelDone" -->
+<div id="LevelFailed" class="Dialog">
+<img class="dialogImage" src="images/fail.png">
+<h2 class="success" id="LevelFailedText"> Das kannst du besser! </h2> 
+</div> <!-- id="LevelFailed" -->
+<div id="WorldCompleted" class="Dialog" onclick="game.hideDialog('WorldCompleted')">
+<img class="dialogImage monster" src="images/worldfinished.gif">
+<h2 class="success" id="WorldCompletedText"> Spitze! <br/> Du hast alle Aufgaben geschafft <br/>und bist dem Geheimnis </br>wieder ein Stück näher gekommen!  </h2> 
+</div> <!-- id="WorldCompleted" -->
+<div id="AllCompleted" class="Dialog">
+<h2 class="success" id="AllCompletedText"> Spitze! <br/> Du hast alle Aufgaben geschafft <br> und bist dem Geheimnis ein großes Stück näher gekommen!<br/> Komm bald wieder, <br>dann gibt es neue Aufgaben.  </h2> 
+</div> <!-- id="WorldCompleted" -->
+
 </body>
 

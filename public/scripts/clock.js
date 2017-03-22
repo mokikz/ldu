@@ -15,8 +15,8 @@ LernDieUhr.Clock = (function(){
     mouseDown=0;
     alpha = 0;
     lastAlpha = 0;
-    lastMouseX = 0;
-    lastMouseY = 0;
+    lastMouseX = undefined;
+    lastMouseY = undefined;
     hour = 0;
     minute = 0;
     relX = 0;
@@ -126,8 +126,9 @@ function calculatePhi(mouseX,mouseY) {
     lastMouseX = mouseX;
     lastMouseY = mouseY;
     }
-
+/*
 function initialize() {
+      console.log("Clock::initialize()");
       var canvas = document.getElementById('mainarea');
       var myDiv = document.getElementById('maindiv');
       registerEvents();
@@ -151,6 +152,7 @@ function initialize() {
       showTime();
       draw();
       };
+*/
 
    function registerEvents() {
       console.log("Clock::registerEvents()");
@@ -164,6 +166,7 @@ function initialize() {
       window.addEventListener('touchend', canvas_mouseUp, false);
       window.addEventListener('touchcancel', canvas_mouseUp, false);  
       window.addEventListener('resize', resizeCanvas, false);
+      document.addEventListener('refreshView', refreshView, false);
       console.log("Clock::registerEvents() done");
     }
 
@@ -178,22 +181,31 @@ function initialize() {
         mouseX = e.layerX;
         mouseY = e.layerY;
         }
+      else {
+        var touch = e.touches[0];
+        mouseX = touch.clientX;
+        mouseY = touch.clientY;
+        }
+      return [mouseX, mouseY];
       }
 
     function canvas_mouseUp() {
+      console.log("Clock::canvas_mouseUp()");
       mouseDown = 0;
       }
 
     function canvas_mouseDown() {
+      console.log("Clock::canvas_mouseDown()");
       mouseDown = 1;
       }
 
     function canvas_mouseMove(e) {
+      console.log("Clock::canvas_mouseMove()");
       getMousePos(e);
-      showTime(mouseX, mouseY);
       if (mouseDown==1) {
         calculatePhi(mouseX,mouseY);
         draw();
+        showTime(mouseX, mouseY);
         }
       e.preventDefault();
       }
@@ -241,8 +253,10 @@ function checkDirection (alpha, lastAlpha, direction) {
   } 
 
 function calculatePhi(mouseX,mouseY) {
-    if ((mouseX == lastMouseX)&&(mouseY == lastMouseY)) {
-      return;
+    if (lastMouseX != undefined) {
+      if ((mouseX == lastMouseX)&&(mouseY == lastMouseY)) {
+        return;
+        }
       }
     relX = mouseX - centerX;
     relY = mouseY - centerY;
@@ -290,6 +304,7 @@ function calculatePhi(mouseX,mouseY) {
     }
 
 function showTime(mouseX, mouseY) {
+        console.log("Clock::showTime()");
         var hour;
         var minute;
         [hour, minute] = model.getTime();
@@ -300,13 +315,25 @@ function showTime(mouseX, mouseY) {
         if (minute < 10) {displayMinute = "0" + minute};
         if (minute == 0) {displayMinute = "00"};
         var displayTime = displayHour + ":" + displayMinute;
-	console.log(displayTime);
+	console.log("showTime: " + displayTime);
         if (_me.timechanged) {
           _me.timechanged(displayTime);
-          }
+        }
     }
+    function refreshView() {
+        console.log("Clock::refreshView()");
+        var hour;
+        var minute;
+        [hour, minute] = model.getTime();
+        console.log("redraw clock " + hour + ":" + minute);
+        completedHours = hour;
+        that.completedHours = hour;
+        that.minute = minute;
+        draw();
+        }
 
     function resizeCanvas() {
+      console.log("Clock::resizeCanvas()");
       var canvas = document.getElementById('mainarea');
       var myDiv = document.getElementById('maindiv');
       var oldSizeX = canvas.width;
@@ -324,14 +351,16 @@ function showTime(mouseX, mouseY) {
         size = width;
         }
       radius = Math.floor(size/2);
-      centerX = Math.floor(width/2);
-      centerY = Math.floor(height/2);
+      centerX = Math.floor(width - size/2);
+      centerY = Math.floor(height- size/2);
+
       context = canvas.getContext('2d');
       context.translate(centerX, centerY);
       draw();
       }
 
     function draw() {
+      console.log("Clock::draw()");
       var outerBorder = radius - 12;
       var innerBorder = radius - 21;
       var outerMinuteMark = radius - 30;
@@ -465,7 +494,9 @@ function showTime(mouseX, mouseY) {
     };
     // module methods
     Clock.prototype.init = function(_model, _size,_centerX, _centerY ) {
+        console.log("Clock::init()");
         model = _model;
+        that = this;
         canvas = model.getValue("Canvas");
         //if (_me == undefined) {
           this.context = canvas.getContext('2d');
@@ -487,7 +518,7 @@ function showTime(mouseX, mouseY) {
       this.minute = now.getMinutes();
       this.completedHours = now.getHours();
       //minute = this.minute;
-      //completedHours = this.completedHours;
+      completedHours = this.completedHours;
       model.setTime(this.completedHours, this.minute);
       showTime();
       draw();
@@ -495,15 +526,20 @@ function showTime(mouseX, mouseY) {
        };
 
     Clock.prototype.draw = function() {
+        console.log("Clock::draw()");
         return draw();
         }
     Clock.prototype.resizeCanvas = function() {
+        console.log("Clock::resizeCanvas()");
         return resizeCanvas();
         }
     Clock.prototype.animate = function(timestamp) {
-
+      console.log("Clock::animate()");
       return true;
       }
+    Clock.prototype.refreshView = function() {
+        return refreshView();
+        }
 
 
 

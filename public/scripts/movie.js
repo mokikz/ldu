@@ -74,17 +74,17 @@ Intro.Fade = (function(){
         if (this.startTime == 0) {
             this.startTime = timestamp;
             elapsed = 0;
-            console.log("Start=" + this.startTime);
+            //console.log("Start=" + this.startTime);
             }
         if (elapsed >= this.duration) {
-            console.log("scene played, elapsed=%d", elapsed);
+            //console.log("scene played, elapsed=%d", elapsed);
             scenePlayed();
             return false;
             }
         else {
             // calculate x = f(t)
             var transparency = 1 - (elapsed/this.duration);
-            console.log("start= %d elapsed=%d transparency=%d", this.startTime, elapsed, transparency);
+            //console.log("start= %d elapsed=%d transparency=%d", this.startTime, elapsed, transparency);
             this.context.clearRect(0,0, this.context.canvas.width, this.context.canvas.height); 
             this.context.save();
             this.context.globalAlpha = Math.max(0, transparency);
@@ -238,7 +238,7 @@ Intro.Zoom = (function(){
             //var transY= this.translateY * fraction;
             //this.context.translate(x, y);
             //this.context.scale(scaleX,scaleY);
-            console.log("elapsed: %5.2f, pos (%d/%d) width, height (%f/%f)", elapsed, x, y, width, height);
+            //console.log("elapsed: %5.2f, pos (%d/%d) width, height (%f/%f)", elapsed, x, y, width, height);
             this.context.drawImage(this.img, x,y,
                 width, height,
                 0,0,
@@ -329,7 +329,7 @@ Intro.Pann = (function(){
             height = Math.floor(height);
             this.context.clearRect(0,0, this.context.canvas.width, this.context.canvas.height); 
             this.context.save();
-            console.log("elapsed: %5.2f, pos (%d/%d) width, height (%f/%f)", elapsed, x, y, width, height);
+            //console.log("elapsed: %5.2f, pos (%d/%d) width, height (%f/%f)", elapsed, x, y, width, height);
             this.context.drawImage(this.img, x,y,
                 width, height,
                 0,0,
@@ -397,7 +397,7 @@ var Movie = {
         Movie.moviePlayed();
         }
         else {
-           console.time("scene");
+           //console.time("scene");
        Movie.renderFrame();
            }
         },
@@ -405,7 +405,7 @@ var Movie = {
     play : function() {
         Movie.playing = true;
         Movie.start= new Date().getTime();
-        console.time("scene");
+        //console.time("scene");
         Movie.nextScene();
         },
 

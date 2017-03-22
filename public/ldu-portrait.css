@@ -4,6 +4,67 @@ body {
     padding: 0 !important;
 }
 
+
+div.layer1 {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    width: 100%;
+    height: 100vh;
+    background-image: url(images/wand.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    z-index: 1;
+}
+
+div.layer2{
+    position: relative;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    width: 100%;
+    height: calc(80vh - 36px);
+    background-image: url(images/sofa.png);
+    background-repeat: no-repeat;
+    background-position: bottom right;
+    z-index: 20;
+}
+
+div.layer3{
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    width: 100%;
+    height: calc(80vh - 36px);
+    background-image: url(images/kissen-mit-ei.png);
+    background-repeat: no-repeat;
+    background-position: bottom right;
+    z-index: 30;
+}
+
+div.layer4 {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000000;
+    z-index: 32;
+}
+
+
+
 #game {
     left: 0;
     right: 0;
@@ -12,8 +73,11 @@ body {
     margin: 0;
     width: 100%;
     height: 100vh;
-    background-color: #F00000;
     color: #DDDDDD;
+    background-image: url(images/wand.png);
+    background-repeat:no-repeat;
+    background-size:cover;
+
 }
 
 #mainarea {
@@ -25,15 +89,44 @@ body {
     margin: 0;
     width: 100%;
     height: calc(80vh - 36px);
+    z-index: 40;
+}
+
+#moviearea {
+    position: relative;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#sofa {
+    position: relative;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    /*height: calc(80vh - 36px);*/
+    background-image: url(images/sofa.png);
+    background-repeat:none;
+    background-position: bottom center ;
+    z-index: 10;
 }
 
 #task {
-  width: 90%
+  width: 90%;
+  font-size: 1.5em;
 }
 
 .bigbutton {
-  width: 42px;
-  height: 42px;
+  width: calc(20vh - 20px); 
+  height: calc(20vh - 20px);
 }
 
 .panel {
@@ -145,6 +238,10 @@ footer {
   float: right;
 }
 
+div {
+  font-family: sans-serif;
+}
+
 div.leftcol {
   float: left;
   width: 100%;
@@ -177,5 +274,190 @@ div.rightcol {
   text-align: left;
   width: 10vw;
 }
+#Loading {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #000000;
+  background-image: url(images/loading.jpg);
+  background-size:cover;
+  z-index:60;
+}
 
+#LevelDone {
+  position: absolute;
+  width: 80%;
+  right: 10%;
+  top: 10vh;
+  height: 80vh;
+  background-color: rgba(255,255,255,0.7);
+  display: none; 
+  border:1px ridge #999999;
+  -webkit-border-radius: 20px 20px 20px 20px;
+  -moz-border-radius: 20px 20px 20px 20px;
+  border-radius: 20px 20px 20px 20px;
+   -webkit-box-shadow: inset 0px -1px 10px -1px rgba(0,0,0,0.5);
+   -moz-box-shadow: inset 0px -1px 10px -1px rgba(0,0,0,0.5);
+   box-shadow: inset 0px -1px 10px -1px rgba(0,0,0,0.5);
+}
+#LevelDone:before {
+   content: "";
+   position: absolute;
+   top: 15px;
+   left: 15px;
+   right: 15px;
+   bottom: 15px;
+   border: 1px solid #999999;
+   background: rgba(255,255,255,0.25);
+   -webkit-border-radius: 20px 20px 20px 20px;
+   -moz-border-radius: 20px 20px 20px 20px;
+   border-radius: 20px 20px 20px 20px;
+   -webkit-box-shadow: 0px -1px 10px -1px rgba(0,0,0,0.5);
+   -moz-box-shadow: 0px -1px 10px -1px rgba(0,0,0,0.5);
+   box-shadow: 0px -1px 10px -1px rgba(0,0,0,0.5);
+}
+
+#LevelFailed {
+  margin: 10px;
+  position: absolute;
+  width: 80%;
+  right: 10%;
+  top: 20vh;
+  height: 60vh;
+  background-color: rgba(255,255,255,0.7);
+  display: none; 
+  -webkit-border-radius: 20px 20px 20px 20px;
+  -moz-border-radius: 20px 20px 20px 20px;
+  border-radius: 20px 20px 20px 20px;
+  border:1px ridge #999999;
+   -webkit-box-shadow: inset 0px -1px 10px -1px rgba(0,0,0,0.5);
+   -moz-box-shadow: inset 0px -1px 10px -1px rgba(0,0,0,0.5);
+   box-shadow: inset 0px -1px 10px -1px rgba(0,0,0,0.5);
+}
+
+#Levelfailed:before {
+   content: "";
+   position: absolute;
+   top: 15px;
+   left: 15px;
+   right: 15px;
+   bottom: 15px;
+   border: 1px solid #999999;
+   background: rgba(255,255,255,0.25);
+   -webkit-border-radius: 20px 20px 20px 20px;
+   -moz-border-radius: 20px 20px 20px 20px;
+   border-radius: 20px 20px 20px 20px;
+   -webkit-box-shadow: 0px -1px 10px -1px rgba(0,0,0,0.5);
+   -moz-box-shadow: 0px -1px 10px -1px rgba(0,0,0,0.5);
+   box-shadow: 0px -1px 10px -1px rgba(0,0,0,0.5);
+}
+
+.success {
+  @-webkit-keyframes textwelle {
+    0 {
+      font-size: 0;
+      opacity: 0;
+      }
+    90% {
+      font-size: 220%;
+      opacity: 1;
+      }
+    100% {
+      font-size: 200%;
+      opacity: 1;
+      }
+  }
+  @-moz-keyframes textwelle {
+    0 {
+      font-size: 0;
+      opacity: 0;
+      }
+    90% {
+      font-size: 220%;
+      opacity: 1;
+      }
+    100% {
+      font-size: 200%;
+      opacity: 1;
+      }
+  }
+  @-o-keyframes textwelle {
+    0 {
+      font-size: 0;
+      opacity: 0;
+      }
+    90% {
+      font-size: 220%;
+      opacity: 1;
+      }
+    100% {
+      font-size: 200%;
+      opacity: 1;
+      }
+  }
+  @keyframes textwelle {
+    0 {
+      font-size: 0;
+      opacity: 0;
+      }
+    90% {
+      font-size: 220%;
+      opacity: 1;
+      }
+    100% {
+      font-size: 200%;
+      opacity: 1;
+      }
+  }
+  -webkit-animation: textwelle 5s infinite; /* Safari 4+ */
+  -moz-animation:    textwelle 5s infinite; /* Fx 5+ */
+  -o-animation:      textwelle 5s infinite; /* Opera 12+ */
+  animation: textwelle 2s;
+  animation-play-state: paused;
+  text-align: center;
+  margin: auto; 
+}
+
+.dialogImage {
+  display: block;
+  margin: 0 auto;
+  opacity: 1;
+}
+
+ul {
+  list-style-type: none;
+  line-height: 1.5em;
+  margin: 15vh;
+  font-size: 200%
+}
+li {
+  padding: 0.3em;
+  padding-top:0.7em;
+  text-align:center;
+}
+li div {
+  height: 30vh;
+  border: 1px solid rgba(0,0,0,.1);
+  background: #58a linear-gradient(hsla(0,0%,100%,.2),transparent);
+  border-radius: 0.2em;
+  box-shadow: 0 -.05em .05em rgba(0,0,0,.5);
+  text-shadow: 0 -.05em .05em rgba(0,0,0,.5);
+  color: white;
+}
+
+li div.weiter {
+  background-color: #6b0;
+}
+
+li div.neu {
+  background-color: #c00;
+}
+
+.zentriert {
+position: relative;
+margin: 0;
+top: 50%;
+-webkit-transform: translateY(-50%);
+-ms-transform: translateY(-50%);
+transform: translateY(-50%);
 }
