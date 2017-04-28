@@ -1,6 +1,16 @@
     var levels = [
         {"world": "Start", 
          "levels": [
+           {"label": "Stell die Uhr eine viertel Stunde zurück", startHour: 11, startMinute: 15, zielHour: "11", zielMinute: "00"},
+           {"label": "Stell die Uhr eine dreiviertel Stunde vor", startHour: 10, startMinute: 0, zielHour: "10", zielMinute: "45"},
+           {"label": "Stell die Uhr eine halbe Stunde vor", startHour: 12, startMinute: 15, zielHour: "12", zielMinute: "45"},
+           {"label": "Stell die Uhr eine viertel Stunde vor", startHour: 1, startMinute: 30, zielHour: "1", zielMinute: "45"},
+           {"label": "Stell die Uhr eine halbe Stunde vor", startHour: 15, startMinute: 30, zielHour: "16", zielMinute: "00"},
+           {"label": "Stell die Uhr eine dreiviertel Stunde zurück", startHour: 16, startMinute: 15, zielHour: "15", zielMinute: "30"},
+           {"label": "Stell die Uhr eine halbe Stunde zurück", startHour: 17, startMinute: 0, zielHour: "16", zielMinute: "30"},
+           {"label": "Stell die Uhr eine dreiviertel Stunde vor", startHour: 18, startMinute: 45, zielHour: "19", zielMinute: "30"},
+           {"label": "Stell die Uhr eine halbe Stunde vor", startHour: 19, startMinute: 15, zielHour: "19", zielMinute: "45"},
+           {"label": "Stell die Uhr eine dreiviertel Stunde zurück", startHour: 21, startMinute: 30, zielHour: "20", zielMinute: "45"},
            {"label": "Stell die Uhr auf ein Uhr", startHour: 10, startMinute: 0, zielHour: "01", zielMinute: "00"},
            {"label": "Stell die Uhr auf 3:00Uhr", startHour: 12, zielHour: 3, zielMinute: "00"},
            {"label": "Stell die Uhr auf 10:00 Uhr", startHour: 6, startMinute: 0, zielHour: "10", zielMinute: "00"},

@@ -48,6 +48,12 @@ div.layer3{
     background-position: bottom right;
     z-index: 30;
 }
+.character {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+}
 
 div.layer4 {
     position: absolute;

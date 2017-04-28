@@ -30,6 +30,11 @@
 <link rel="stylesheet" media="all and (orientation:portrait)" href="ldu-portrait.css" />
 <link rel="stylesheet" media="all and (orientation:landscape)" href="ldu-landscape.css" />
 <script type="application/x-javascript">
+// Internet Explorer 6-11
+var isIE = /*@cc_on!@*/false || !!document.documentMode;
+
+// Edge 20+
+var isEdge = !isIE && !!window.StyleMedia;
 
 var persistence = new LernDieUhr.Persistence;
 var model = new LernDieUhr.Model;
@@ -183,7 +188,8 @@ function initialize() {
   <!-- Right content -->
   <div class='layer2'></div>
   <div class="layer3">
-
+      <img class='character' id='blink' src='images/blink.png'/>
+      <img class='character' id='Eyes' src='images/eyes.png'/>
       <canvas id="mainarea">The &lt;canvas&gt; element is not supported by your browser!</canvas>
 <script type="application/x-javascript">
   window.addEventListener('resize', resizeCanvas, false);

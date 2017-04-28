@@ -10,6 +10,17 @@ LernDieUhr.Model = (function(){
     var initialized = false;
     // private functions
 
+    function sendEvent(type, data) {
+        if (isIE) {
+            var myEvent = document.createEvent("CustomEvent");
+            myEvent.initEvent(type, true, false, type);
+            }
+        else {
+            var myEvent = new CustomEvent(type , data);
+            }
+        document.dispatchEvent(myEvent);
+    };
+
     // module properties
     var Model = function(){
         persistence = new LernDieUhr.Persistence();
@@ -31,8 +42,9 @@ LernDieUhr.Model = (function(){
         this.data[key] = value;
         
         // notfiy change
-        var myEvent = new CustomEvent('DataChanged', {'Data':key});
-        document.dispatchEvent(myEvent);
+        // var myEvent = new CustomEvent('DataChanged', {'Data':key});
+        // document.dispatchEvent(myEvent);
+        sendEvent('DataChanged', {'Data':key});
         return value;
         };
 
@@ -40,16 +52,14 @@ LernDieUhr.Model = (function(){
         console.log("Model::setValue(" + key + ")");
         this.data[key] = value;
         // notfiy change
-        var myEvent = new CustomEvent('DataChanged', {'Data':key});
-        document.dispatchEvent(myEvent);
+        sendEvent('DataChanged', {'Data':value});
         };
 
     Model.prototype.setData = function(value) {
         console.log("Model::setData()");
         this.data = value;
         // notfiy change
-        var myEvent = new CustomEvent('DataChanged', {'Data':key});
-        document.dispatchEvent(myEvent);
+        sendEvent('DataChanged', {'Data':value});
         };
 
     Model.prototype.setTime = function(hour, minute) {
@@ -63,8 +73,7 @@ LernDieUhr.Model = (function(){
         console.log("Model::setTime(" + hour + "," + minute + ")");
         this.data['time'] = [hour, minute];
         // notfiy change
-        var myEvent = new CustomEvent('DataChanged', {'Data':'time'});
-        document.dispatchEvent(myEvent);
+        sendEvent('DataChanged', {'Data':[hour, minute]});
         };
 
     Model.prototype.getTime = function() {
@@ -83,8 +92,7 @@ LernDieUhr.Model = (function(){
     Model.prototype.refreshViews = function() {
         console.log("Model::refresh()");
         // notfiy change
-        var myEvent = new CustomEvent('refreshView');
-        document.dispatchEvent(myEvent);
+        sendEvent('refreshView');
         };
 
     Model.prototype.initialized = function() {

@@ -307,7 +307,15 @@ function showTime(mouseX, mouseY) {
         console.log("Clock::showTime()");
         var hour;
         var minute;
-        [hour, minute] = model.getTime();
+        if (isIE) {
+            var temp = new Array();
+            temp= model.getTime();
+            hour = temp[0];
+            minute = temp[1];
+            }
+        else {
+            [hour, minute] = model.getTime();
+            }
         var displayHour = hour;
         var displayMinute = minute;
         if (hour < 10) {displayHour = "0" + hour};
@@ -324,7 +332,15 @@ function showTime(mouseX, mouseY) {
         console.log("Clock::refreshView()");
         var hour;
         var minute;
-        [hour, minute] = model.getTime();
+        if (isIE) {
+            var temp = new Array();
+            temp= model.getTime();
+            hour = temp[0];
+            minute = temp[1];
+            }
+        else {
+            [hour, minute] = model.getTime();
+            }
         console.log("redraw clock " + hour + ":" + minute);
         completedHours = hour;
         that.completedHours = hour;
@@ -440,13 +456,21 @@ function showTime(mouseX, mouseY) {
         }
         //Fetch the current time
         //var ampm="AM";
-        var hrs;
-        var min;
-        [hrs, min] = model.getTime();
+        var hour;
+        var minute;
+        if (isIE) {
+            var temp = new Array();
+            temp= model.getTime();
+            hour = temp[0];
+            minute = temp[1];
+            }
+        else {
+            [hour, minute] = model.getTime();
+            }
         var sec = 0;
         c2d.strokeStyle="#000";
         //Draw AM/PM indicator
-        //if (hrs>=12) ampm="PM";
+        //if (hour>=12) ampm="PM";
         //c2d.lineWidth=1;
         //c2d.strokeRect(21,-14,44,27);
         //c2d.fillText(ampm,43,0);
@@ -456,7 +480,7 @@ function showTime(mouseX, mouseY) {
         //calculate x/y start/end positions.
         //
         //Draw hour hand
-        c2d.rotate(Math.PI/6*(hrs+(min/60)+(sec/3600)));
+        c2d.rotate(Math.PI/6*(hour+(minute/60)+(sec/3600)));
         c2d.beginPath();
         c2d.moveTo(0,10);
         c2d.lineTo(0,-1* hourHand);
@@ -464,7 +488,7 @@ function showTime(mouseX, mouseY) {
         c2d.restore();
         c2d.save();
         //Draw minute hand
-        c2d.rotate(Math.PI/30*(min+(sec/60)));
+        c2d.rotate(Math.PI/30*(minute+(sec/60)));
         c2d.beginPath();
         c2d.moveTo(0,20);
         c2d.lineTo(0,-1 * minuteHand);

@@ -58,7 +58,15 @@ LernDieUhr.Game = (function(){
         console.log("Game::levelCompleted()");
         var hour;
         var minute;
-        [hour, minute] = model.getTime();
+        if (isIE) {
+            var temp = new Array();
+            temp= model.getTime();
+            hour = temp[0];
+            minute = temp[1];
+            }
+        else {
+            [hour, minute] = model.getTime();
+            }
 
         // compare with asked time
         var currentWorld = model.getValue("currentWorld");
@@ -82,6 +90,7 @@ LernDieUhr.Game = (function(){
         else {
             // show failure
             showDialog("LevelFailed");
+            that.loadLevel(true);
             setTimeout(hideDialog, 2000, "LevelFailed");
             }
     }
