@@ -62,6 +62,16 @@ LernDieUhr.Model = (function(){
         sendEvent('DataChanged', {'Data':value});
         };
 
+    Model.prototype.setTimeFromText = function(time) {
+        var hour;
+        var minute;
+        // expected format: 16:32:55
+        var re = /([0-9]+):([0-9]+)/;
+        var hour = time.match(re)[1];
+        var minute = time.match(re)[2];
+        this.setTime(hour, minute);
+        }
+
     Model.prototype.setTime = function(hour, minute) {
         // if minute is undefined keep current value
         if (minute == undefined) {

@@ -110,6 +110,48 @@ div.layer4 {
   font-size: 1.5em;
 }
 
+#edittime {
+  font-size: 1.5em;
+}
+
+#sprechblase {  
+  position: relative;  
+  width: 250px;  
+  height: 120px;
+  line-height: 120px;  
+  font-size: 1.8em;
+  font-family: helvetica, tahoma;
+  border: 4px solid #2651A6;
+  margin:0 auto;  
+  -webkit-border-radius: 20px;  
+  -moz-border-radius: 20px;  
+  border-radius: 20px;
+  text-align: center;  
+  background: #fff;
+ }
+
+#sprechblase:before {  
+  content: ' ';  
+  position: absolute;  
+  width: 0;  
+  height: 0;  
+  left: 30px;  
+  top: 120px;  
+  border: 20px solid;  
+  border-color: #2651A6 transparent transparent #2651A6;  
+  }
+
+#sprechblase:after {  
+  content: ' ';  
+  position: absolute;  
+  width: 0;  
+  height: 0;  
+  left: 34px;  
+  top: 120px;  
+  border: 15px solid;  
+  border-color: #fff transparent transparent #fff;  
+  }
+
 .panel {
   font-size: 0.9em;
   font-weight: bold;
@@ -267,6 +309,7 @@ div.rightcol {
   text-align: left;
   width: 30vw;
 }
+
 #Loading {
   position: absolute;
   width: 100%;
@@ -440,6 +483,7 @@ transform: translateY(-50%);
 @keyframes play {
    100% { background-position: -1900px; }
 }
+
 .monster {
   width: 240px;
   height: 240px;
@@ -450,4 +494,59 @@ transform: translateY(-50%);
   animation-direction: alternate; /* or: normal */
 }
 
+.layer3.blink {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    height: calc(80vh - 36px);
+    width: auto;
+    max-width: 100%;
+    -webkit-transition: all 0.1s ease-in-out; 
+    -moz-transition: all 0.1s ease-in-out; 
+    -ms-transition: all 0.1s ease-in-out; 
+  transition: all 0.1s ease-in-out; 
+  overflow:hidden;
+  visibility: visible;
+  background-image: url(images/blink.png);
+    background-repeat: no-repeat;
+    background-position: bottom right;
+}
+
+.layer3.eyes {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    height: calc(80vh - 36px);
+    width: auto;
+    max-width: 100%;
+    -webkit-transition: all 0.1s ease-in-out; 
+    -moz-transition: all 0.1s ease-in-out; 
+    -ms-transition: all 0.1s ease-in-out; 
+    transition: all 0.1s ease-in-out; 
+    overflow:hidden;
+    visibility: visible;
+    background-image: url(images/eyes.png);
+    background-repeat: no-repeat;
+    background-position: bottom right;
+    z-index: 33;
+
+}
+
+.eyes.blink {
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin: 0;
+    height: calc(80vh - 36px);
+    width: auto;
+    max-width: 100%;
+    -webkit-transition: all 0.1s ease-in-out; 
+    -moz-transition: all 0.1s ease-in-out; 
+    -ms-transition: all 0.1s ease-in-out; 
+    transition: all 0.1s ease-in-out; 
+    visibility: hidden;
+    z-index: 31;
+}
 

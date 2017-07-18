@@ -4,7 +4,6 @@ body {
     padding: 0 !important;
 }
 
-
 div.layer1 {
     position: absolute;
     left: 0;
@@ -50,6 +49,13 @@ div.layer3{
     z-index: 30;
 }
 
+.character {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+}
+
 div.layer4 {
     position: absolute;
     left: 0;
@@ -63,8 +69,6 @@ div.layer4 {
     z-index: 32;
 }
 
-
-
 #game {
     left: 0;
     right: 0;
@@ -77,7 +81,6 @@ div.layer4 {
     background-image: url(images/wand.png);
     background-repeat:no-repeat;
     background-size:cover;
-
 }
 
 #mainarea {
@@ -103,30 +106,9 @@ div.layer4 {
     height: 100%;
 }
 
-#sofa {
-    position: relative;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    /*height: calc(80vh - 36px);*/
-    background-image: url(images/sofa.png);
-    background-repeat:none;
-    background-position: bottom center ;
-    z-index: 10;
-}
-
 #task {
   width: 90%;
   font-size: 1.5em;
-}
-
-.bigbutton {
-  width: calc(20vh - 20px); 
-  height: calc(20vh - 20px);
 }
 
 .panel {
@@ -140,7 +122,7 @@ div.layer4 {
 
 .panel.bottom {
   position: relative;
-  padding: 10px;
+  padding: 2px 5px;
   margin: 0px auto;
   -webkit-border-radius: 20px 20px 20px 20px;
   -moz-border-radius: 20px 20px 20px 20px;
@@ -149,6 +131,11 @@ div.layer4 {
   -webkit-box-shadow: #D39201 2px 2px 2px inset;
   -moz-box-shadow: #D39201 2px 2px 2px inset;
   box-shadow: #D39201 2px 2px 2px inset;
+}
+
+.bigbutton {
+  width: calc(20vh - 20px); 
+  height: calc(20vh - 20px);
 }
 
 .panel.center {
@@ -224,6 +211,11 @@ footer {
   flex-direction: row;
 }
 
+.group {
+  position: relative;
+  top: -30;
+}
+
 .group:after {
   content: "";
   display: table;
@@ -243,9 +235,11 @@ div {
 }
 
 div.leftcol {
+  position: absolute;
   float: left;
   width: 100%;
 }
+
 div.rightcol {
   float: left;
   width: 33%;
@@ -272,7 +266,7 @@ div.rightcol {
   font-size: 0.9em;
   font-family: sans-serif;
   text-align: left;
-  width: 10vw;
+  width: 30vw;
 }
 #Loading {
   position: absolute;
@@ -283,14 +277,22 @@ div.rightcol {
   background-size:cover;
   z-index:60;
 }
+#ContinueGame {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: #000000;
+  background-size:cover;
+  z-index:55;
+}
 
-#LevelDone {
+.Dialog {
   position: absolute;
   width: 80%;
   right: 10%;
   top: 10vh;
   height: 80vh;
-  background-color: rgba(255,255,255,0.7);
+  background-color: rgba(255,255,255,0.9);
   display: none; 
   border:1px ridge #999999;
   -webkit-border-radius: 20px 20px 20px 20px;
@@ -300,7 +302,8 @@ div.rightcol {
    -moz-box-shadow: inset 0px -1px 10px -1px rgba(0,0,0,0.5);
    box-shadow: inset 0px -1px 10px -1px rgba(0,0,0,0.5);
 }
-#LevelDone:before {
+
+.Dialog:before{
    content: "";
    position: absolute;
    top: 15px;
@@ -315,27 +318,35 @@ div.rightcol {
    -webkit-box-shadow: 0px -1px 10px -1px rgba(0,0,0,0.5);
    -moz-box-shadow: 0px -1px 10px -1px rgba(0,0,0,0.5);
    box-shadow: 0px -1px 10px -1px rgba(0,0,0,0.5);
+}
+
+#LevelDone {
+   z-index: 50;
 }
 
 #LevelFailed {
-  margin: 10px;
+   z-index: 50;
+}
+
+#SelectPlayer {
   position: absolute;
   width: 80%;
   right: 10%;
-  top: 20vh;
-  height: 60vh;
-  background-color: rgba(255,255,255,0.7);
-  display: none; 
+  top: 10vh;
+  height: 80vh;
+  display: none;
+  background-color: rgba(0,0,0,0.7);
+  border:1px ridge #999999;
   -webkit-border-radius: 20px 20px 20px 20px;
   -moz-border-radius: 20px 20px 20px 20px;
   border-radius: 20px 20px 20px 20px;
-  border:1px ridge #999999;
    -webkit-box-shadow: inset 0px -1px 10px -1px rgba(0,0,0,0.5);
    -moz-box-shadow: inset 0px -1px 10px -1px rgba(0,0,0,0.5);
    box-shadow: inset 0px -1px 10px -1px rgba(0,0,0,0.5);
+   z-index: 50;
 }
 
-#Levelfailed:before {
+#SelectPlayer :before {
    content: "";
    position: absolute;
    top: 15px;
@@ -343,7 +354,7 @@ div.rightcol {
    right: 15px;
    bottom: 15px;
    border: 1px solid #999999;
-   background: rgba(255,255,255,0.25);
+   background: rgba(0,0,0,0.25);
    -webkit-border-radius: 20px 20px 20px 20px;
    -moz-border-radius: 20px 20px 20px 20px;
    border-radius: 20px 20px 20px 20px;
@@ -352,83 +363,23 @@ div.rightcol {
    box-shadow: 0px -1px 10px -1px rgba(0,0,0,0.5);
 }
 
-.success {
-  @-webkit-keyframes textwelle {
-    0 {
-      font-size: 0;
-      opacity: 0;
-      }
-    90% {
-      font-size: 220%;
-      opacity: 1;
-      }
-    100% {
-      font-size: 200%;
-      opacity: 1;
-      }
-  }
-  @-moz-keyframes textwelle {
-    0 {
-      font-size: 0;
-      opacity: 0;
-      }
-    90% {
-      font-size: 220%;
-      opacity: 1;
-      }
-    100% {
-      font-size: 200%;
-      opacity: 1;
-      }
-  }
-  @-o-keyframes textwelle {
-    0 {
-      font-size: 0;
-      opacity: 0;
-      }
-    90% {
-      font-size: 220%;
-      opacity: 1;
-      }
-    100% {
-      font-size: 200%;
-      opacity: 1;
-      }
-  }
-  @keyframes textwelle {
-    0 {
-      font-size: 0;
-      opacity: 0;
-      }
-    90% {
-      font-size: 220%;
-      opacity: 1;
-      }
-    100% {
-      font-size: 200%;
-      opacity: 1;
-      }
-  }
-  -webkit-animation: textwelle 5s infinite; /* Safari 4+ */
-  -moz-animation:    textwelle 5s infinite; /* Fx 5+ */
-  -o-animation:      textwelle 5s infinite; /* Opera 12+ */
-  animation: textwelle 2s;
-  animation-play-state: paused;
-  text-align: center;
-  margin: auto; 
+#WorldCompleted {
+   z-index: 60;
 }
 
-.dialogImage {
-  display: block;
-  margin: 0 auto;
-  opacity: 1;
+#AllCompleted {
+   z-index: 60;
 }
 
+h2#AllCompletedText {
+    padding-top: 50px;
+}
 ul {
   list-style-type: none;
   line-height: 1.5em;
-  margin: 15vh;
-  font-size: 200%
+  margin: 15vh 15vw;
+  font-size: 200%;
+  -webkit-padding-start:0px;
 }
 li {
   padding: 0.3em;
@@ -461,3 +412,45 @@ top: 50%;
 -ms-transform: translateY(-50%);
 transform: translateY(-50%);
 }
+
+.success {
+  @keyframes textwelle {
+    0 {
+      font-size: 0;
+      opacity: 0;
+      }
+    90% {
+      font-size: 220%;
+      opacity: 1;
+      }
+    100% {
+      font-size: 200%;
+      opacity: 1;
+      }
+  }
+  animation: textwelle 2s;
+  animation-play-state: paused;
+  text-align: center;
+  margin: auto; 
+}
+
+@keyframes play {
+   100% { background-position: -1900px; }
+}
+
+.dialogImage {
+  display: block;
+  margin: 0 auto;
+  opacity: 1;
+}
+
+.monster {
+  width: 240px;
+  height: 240px;
+  background: url('images/worldcompleted.png') left center;
+  animation: play 0,7s steps (14);
+  animation-duration: 4s; /* or: Xms */
+  animation-iteration-count: 10;
+  animation-direction: alternate; /* or: normal */
+}
+

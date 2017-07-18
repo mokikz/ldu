@@ -1,5 +1,7 @@
     var levels = [
-        {"world": "Start", 
+/*        {"world": "Start", 
+         "klasse": [2],
+         "type": "Zeiger einstellen",
          "levels": [
            {"label": "Stell die Uhr eine viertel Stunde zurück", startHour: 11, startMinute: 15, zielHour: "11", zielMinute: "00"},
            {"label": "Stell die Uhr eine dreiviertel Stunde vor", startHour: 10, startMinute: 0, zielHour: "10", zielMinute: "45"},
@@ -37,6 +39,8 @@
            {"label": "Stell die Uhr auf 0 Uhr", startHour: 12, startMinute: 0, zielHour: "12", zielMinute: "00"}
            ] },
         {"world": "Halbe und viertel Stunden", 
+         "klasse": [2],
+         "type": "Zeiger einstellen",
          "levels": [
            {"label": "Stell die Uhr auf 6:15 Uhr", zielHour: "6", zielMinute: "15"},
            {"label": "Stell die Uhr auf 3:30 Uhr", zielHour: "3", zielMinute: "30"},
@@ -57,6 +61,8 @@
            {"label": "Stell die Uhr auf viertel nach 11 Uhr", zielHour: "11", zielMinute: "15"}
            ] },
          {"world": "Minutengenaue Angaben", 
+         "klasse": [2,3],
+         "type": "Zeiger einstellen",
          "levels": [
            {"label": "Stell die Uhr auf 1:20 Uhr", startHour: 12, startMinute: 0, zielHour: "01", zielMinute: "20"},
            {"label": "Stell die Uhr auf 2:26 Uhr", startHour: 12, startMinute: 0, zielHour: "02", zielMinute: "26"},
@@ -81,6 +87,8 @@
            {"label": "Stell die Uhr auf 14:20 Uhr", startHour: 12, startMinute: 0, zielHour: "14", zielMinute: "20"}
            ] },
          {"world": "Halbe und viertel Stunden relativ", 
+         "klasse": [2,3],
+         "type": "Zeiger einstellen",
          "levels": [
            {"label": "Stell die Uhr eine viertel Stunde zurück", startHour: 11, startMinute: 15, zielHour: "11", zielMinute: "00"},
            {"label": "Stell die Uhr eine dreiviertel Stunde vor", startHour: 10, startMinute: 0, zielHour: "10", zielMinute: "45"},
@@ -94,6 +102,8 @@
            {"label": "Stell die Uhr eine dreiviertel Stunde zurück", startHour: 21, startMinute: 30, zielHour: "20", zielMinute: "45"}
            ] },
         {"world": "Halbe und viertel Stunden minutengenau", 
+         "klasse": [2,3],
+         "type": "Zeiger einstellen",
          "levels": [
            {"label": "Stell die Uhr eine viertel Stunde zurück", startHour: 11, startMinute: 25, zielHour: "11", zielMinute: "10"},
            {"label": "Stell die Uhr eine dreiviertel Stunde vor", startHour: 10, startMinute: 5, zielHour: "10", zielMinute: "50"},
@@ -107,6 +117,8 @@
            {"label": "Stell die Uhr eine dreiviertel Stunde zurück", startHour: 21, startMinute: 53, zielHour: "21", zielMinute: "08"}
            ] },
         {"world": "minutengenau vor und zurück", 
+         "klasse": [2,3],
+         "type": "Zeiger einstellen",
          "levels": [
            {"label": "Stell die Uhr 37 Minuten vor", startHour: 14, startMinute: 37, zielHour: "15", zielMinute: "14"},
            {"label": "Stell die Uhr 48 Minuten zurück", startHour: 11, startMinute: 11, zielHour: "10", zielMinute: "23"},
@@ -120,6 +132,8 @@
            {"label": "Stell die Uhr 43 Minuten vor", startHour: 3, startMinute: 48, zielHour: "04", zielMinute: "31"},
            ] },
         {"world": "Beispiele aus dem Leben", 
+         "klasse": [2,3],
+         "type": "Zeiger einstellen",
          "levels": [
            {"label": "Max muss zu seinem Schulbus 10 min laufen. Wann muss er zu Hause los, damit er den Bus um 7:23 erwischt?", startHour: 0, startMinute: 0, zielHour: "07", zielMinute: "13"},
            {"label": "Lena geht um 15:00Uhr zum einkaufen. Sie braucht 14min für den Bäcker und 17min im Supermarkt. Wann kommt sie wieder zurück?", startHour: 15, startMinute: 00, zielHour: "15", zielMinute: "31"},
@@ -127,6 +141,33 @@
            {"label": "Nadja will mit ihrer Freundin um 14:15 ins Kino. Die Karten müssen sie eine halbe Stunde vorher an der Kasse abholen.Wann müssen sie im Kino sein?", startHour: 00, startMinute: 00, zielHour: "13", zielMinute: "45"},
            {"label": "Der Bus ins Kino fährt ab Mittag alle 20 Minuten und braucht 27 Minuten für die Fahrt. Welchem Bus muss Nadja nehmen, damit sie um 13:45 an der Kinokasse ist?", startHour: 13, startMinute: 45, zielHour: "12", zielMinute: "40"},
            {"label": "Der Bus ins Kino fährt ab Mittag alle 20 Minuten und braucht 27 Minuten für die Fahrt. Welchem Bus muss Nadja nehmen, damit sie um 13:45 an der Kinokasse ist?", startHour: 13, startMinute: 45, zielHour: "12", zielMinute: "40"},
+           ] },
+        {"world": "Zeitspannen 1 - Wieviel Zeit ist vergangen?", 
+         "klasse": [2,3],
+         "type": "Zeiger einstellen",
+         "levels": [
+           {"label": "Wieviel Zeit ist zwischen 12:00 und 12:15 vergangen? Stelle die Uhr so viele Minuten vor.", startHour: 12, startMinute: 0, zielHour: "12", zielMinute: "15"},
+           {"label": "Wieviel Zeit ist zwischen 12:00 und 13:00 vergangen?", startHour: 12, startMinute: 0, zielHour: "13", zielMinute: "00"},
+           {"label": "Wieviel Zeit ist zwischen 12:25 und 12:35 vergangen?", startHour: 12, startMinute: 0, zielHour: "12", zielMinute: "10"},
+           {"label": "Wieviel Zeit ist zwischen 7:15 und 9:30 vergangen?", startHour: 12, startMinute: 0, zielHour: "14", zielMinute: "15"},
+           {"label": "Wieviel Zeit ist zwischen 11:45 und 13:10 vergangen?", startHour: 12, startMinute: 0, zielHour: "14", zielMinute: "25"},
+           {"label": "Wieviel Zeit ist zwischen 18:11 und 19:27 vergangen?", startHour: 12, startMinute: 0, zielHour: "13", zielMinute: "16"},
+           ] },
+         {"world": "Zeitspannen 2 - Wann endet die Veranstaltung?", 
+         "klasse": [2,3],
+         "type": "Zeiger einstellen",
+         "levels": [
+           {"label": "Wann endet die 90 minütige Sportstunde, die um 11:20 beginnt?", startHour: 11, startMinute: 20, zielHour: "12", zielMinute: "50"},
+           {"label": "Wann endet das Konzert, das um 20:09 beginnt und 1h 7min dauert??", startHour: 20, startMinute: 09, zielHour: "21", zielMinute: "16"},
+           {"label": "Wann endet die Fahrt in die Ferien, die um 13:27 beginnt und 2h 50 min dauert?", startHour: 13, startMinute: 0, zielHour: "16", zielMinute: "17"},
+           {"label": "Wann endet der Wandertag, der um 8:10 beginnt und 3h 50min dauert?", startHour: 8, startMinute: 00, zielHour: "12", zielMinute: "00"},
+           ] },
+*/         {"world": "Zeitspannen 3 - Fernsehprogramm planen", 
+         "klasse": [2,3],
+         "type": "Zeit eingeben",
+         "levels": [
+           {"label": "Wieviel Zeit ist seit 18:11 vergangen?", startHour: 19, startMinute: 27, zielHour: "1", zielMinute: "16"},
+           {"label": "Wieviel lange ist es noch bis 13:15?", startHour: 12, startMinute: 0, zielHour: "1", zielMinute: "15"},
            ] }
-    ];
+  ];
 

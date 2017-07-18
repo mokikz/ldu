@@ -11,18 +11,27 @@ LernDieUhr.Character = (function(){
     var numberOfFrames = 1;
 
     // private functions
+    function rand (min, max) {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function blink () {
+      var div = document.getElementById("Eyes");
+      if ( div.classList.contains('blink') ) {
+        div.classList.toggle('blink');
+        setTimeout(blink, rand(3300,6000)); // intervall zwischen Lidschlaegen
+        }
+      else {
+        div.classList.add('blink');
+        setTimeout(blink, rand(300,400)); //dauer Lidschlag 
+        //div.classList.remove('Move');
+        }
+      }
 
     // module properties
     var Character = function(_model, options){
-      var that = {};
+      var that = this;
       model = _model;
-      ticksPerFrame = options.ticksPerFrame || 0;
-      numberOfFrames = options.numberOfFrames || 1;
-          
-      that.context = options.context;
-      that.width = options.width;
-      that.height = options.height;
-      that.image = options.image;
       that.visible = true;
       return that;
     };
@@ -31,41 +40,11 @@ LernDieUhr.Character = (function(){
     Character.prototype.init = function(_model) {
         console.log ("Character::moduleMethod()" + this.moduleProperty);
         model = _model;
+        blink();
         };
 
     Character.prototype.isVisible = function() {
         return that.visible;
-        };
-
-    Character.prototype.update = function (timestamp) {
-            tickCount += 1;
-            if (tickCount > ticksPerFrame) {
-                tickCount = 0;
-                // If the current frame index is in range
-                if (frameIndex < numberOfFrames - 1) {    
-                    // Go to the next frame
-                    frameIndex += 1;
-                } else {
-                    frameIndex = 0;
-                }
-            }
-        };
-        
-    Character.prototype.render = function (timestamp) {
-          // Clear the canvas
-          that.context.clearRect(0, 0, that.width, that.height);
-          
-          // Draw the animation
-          that.context.drawImage(
-            that.image,
-            frameIndex * that.width / numberOfFrames,
-            0,
-            that.width / numberOfFrames,
-            that.height,
-            0,
-            0,
-            that.width / numberOfFrames,
-            that.height);
         };
 
 

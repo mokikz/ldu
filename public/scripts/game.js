@@ -6,6 +6,7 @@ LernDieUhr.Game = (function(){
     // private properties
     
     questionControl = undefined;
+    character = undefined;
     score = undefined;
     that = undefined;
     model;
@@ -162,8 +163,19 @@ function registerEvents() {
         // set clock to start position
         model.setTime(levelData["startHour"], levelData["startMinute"]);
         model.refreshViews();
+    
+        // set data according to level type
+        var innerHTML = levelData["label"];
+        if (levels[currentWorld]["type"] == "Zeit eingeben") {
+          innerHTML = "<div>" + innerHTML + "</div><div><input id='edittime' type='time' value='00:00' onchange='model.setTimeFromText(this.value)'/></div>";
+          //var timeControl = document.getElementById("edittime");
+          //timeControl.addEventListener('change', model.setTimeFromText, false);
+          }
+        else if (levels[currentWorld]["type"] == "") {
+
+          } 
         // set question
-        questionControl.innerHTML = levelData["label"];
+        questionControl.innerHTML = innerHTML;
         };  
 
     Game.prototype.init = function(_model) {
@@ -175,6 +187,8 @@ function registerEvents() {
         submitControl.addEventListener('click', levelCompleted, false);
         score = new LernDieUhr.Score;
         score.init(model);
+        character = new LernDieUhr.Character;
+        character.init(model);
         // register events for animations
         if (! model.initialized()) {
 	  model.setValue("currentLevel", -1);
