@@ -115,7 +115,8 @@ function fillTable(table, data) {
   var r = new Array(); 
   var j = -1;
   var levels = 0;
-  r[++j] = "<tr onclick='expandAll()' class='mainheader'><td class='collapse'><img src='images/expand.png' title='Alle Aufgaben anzeigen'></img></td><td colspan='2'>Name</td><td>Aufgaben</td><td>Klasse</td></tr>";
+  var type = "";
+  r[++j] = "<tr onclick='expandAll()' class='mainheader'><td class='collapse'><img src='images/expand.png' title='Alle Aufgaben anzeigen'></img></td><td colspan='2'>Name</td><td>Aufgaben</td><td>Aufgabentyp</td><td>Klasse</td></tr>";
   for (var key=0, size=data.length; key<size; key++){
     r[++j] ="<tr class='mainheader' onclick='expandChapter(this)'><td>";
     r[++j] = "<img src='images/expand.png' onclick='expandChapter(this)' title='Alle Aufgaben dieses Kapitels anzeigen'></img>";
@@ -125,6 +126,9 @@ function fillTable(table, data) {
     levels = data[key]["levels"];
     numOfLevels = levels.length;
     r[++j] = numOfLevels;
+    r[++j] = '</td><td>';
+    type = data[key]["type"];
+    r[++j] = type;
     r[++j] = '</td><td>';
     r[++j] = fillClassColumn(data[key]['klasse']);
     r[++j] = '</td></tr>';
