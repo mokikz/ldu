@@ -117,10 +117,34 @@ function registerEvents() {
         return hideDialog(id);
         }
 
+    Game.prototype.showDialog = function(id) {
+        return showDialog(id);
+        }
+
+    Game.prototype.getNextWorld = function(currentWorld) {
+        var klasse = model.getValue("Klasse");
+        var numOfWorlds = levels.length;
+        var nextWorld = currentWorld;
+        var nextKlasse;
+        var found = false;
+        do {
+          nextWorld = nextWorld +1;
+          nextKlasse = levels[nextWorld]['klasse'];
+          if ($.inArray( klasse, nextKlasse) > -1) {
+            found = true;
+            }
+        } while ((found == false) && (nextWorld <= numOfWorlds));
+        return nextWorld;
+        }
+
     Game.prototype.loadLevel = function(bLoadCurrentLevel) {
         console.log("Game::loadLevel()");
         var numOfWorlds = levels.length;
         var currentWorld = model.getValue("currentWorld");
+        if (currentWorld == -1) {
+          currentWorld = that.getNextWorld(currentWorld);
+          model.setValue("currentWorld", currentWorld);
+          }
         var levelsOfWorld = levels[currentWorld]['levels'];
         var currentLevel = model.getValue("currentLevel");
         if (bLoadCurrentLevel == undefined) {
@@ -131,7 +155,7 @@ function registerEvents() {
             var maxLevelOfWorld = levelsOfWorld.length -1;
             if (currentLevel > maxLevelOfWorld) {
                 // TODO: move to next world with some reward for player
-                currentWorld += 1;
+                currentWorld = that.getNextWorld(currentWorld);
                 if (currentWorld >= numOfWorlds) {
                   // more levels soon
                   showDialog("AllCompleted");
@@ -192,7 +216,7 @@ function registerEvents() {
         // register events for animations
         if (! model.initialized()) {
 	  model.setValue("currentLevel", -1);
-	  model.setValue("currentWorld", 0);
+	  model.setValue("currentWorld", -1);
 	  model.setValue("completedLevels", 0);
           // no need to ask for game restart, we are right at the beginning
 	  hideDialog("ContinueGame");

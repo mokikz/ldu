@@ -393,13 +393,13 @@ var Movie = {
         console.timeEnd("scene");
         Movie.currentScene +=1;
         if (Movie.currentScene >= Movie.scenes.length) {
-            Movie.playing = false;
-        Movie.moviePlayed();
+          Movie.playing = false;
+          Movie.moviePlayed();
         }
         else {
-           //console.time("scene");
-       Movie.renderFrame();
-           }
+          //console.time("scene");
+          Movie.renderFrame();
+          }
         },
 
     play : function() {
@@ -407,6 +407,11 @@ var Movie = {
         Movie.start= new Date().getTime();
         //console.time("scene");
         Movie.nextScene();
+        },
+
+    cancel : function() {
+        Movie.playing = false;
+        Movie.moviePlayed();
         },
 
     renderFrame : function (timestamp) {

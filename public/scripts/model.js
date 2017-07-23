@@ -111,8 +111,9 @@ LernDieUhr.Model = (function(){
 
     Model.prototype.reset = function() {
 	this.setValue("currentLevel", -1);
-	this.setValue("currentWorld", 0);
+	this.setValue("currentWorld", -1);
 	this.setValue("completedLevels", 0);
+        this.setValue('Klasse', 2);
         initialized = false;
         return true;
         };

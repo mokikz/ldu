@@ -61,7 +61,6 @@ function checkContinue(items) {
     game.hideDialog("ContinueGame");
     playIntro(items);
     }
-  //game.hideDialog("movie");
   }
 
 // callback after all images loaded
@@ -69,6 +68,7 @@ function playIntro (items) {
     // hide load screen
     game.hideDialog("ContinueGame");
     game.hideDialog("Loading");
+    game.hideDialog("SelectKlasse");
     // initialize intro movie
     // Zoom (duration, toX, toY, width, height, translatex, translatey, fade)
     // Pann (context, img, duration,  X,   Y, width, height, translatex, translatey )
@@ -88,7 +88,7 @@ function playIntro (items) {
 
     var canvas = document.getElementById('moviearea');
     var context = canvas.getContext('2d');
-    Movie.init(context, selectPlayer);
+    Movie.init(context, selectKlasseDialog);
     for (var i=0; i<scenes.length; i++) {
         var scene;
         var sceneData = scenes[i];
@@ -97,6 +97,18 @@ function playIntro (items) {
         }
     Movie.play();
 };
+
+function selectKlasseDialog() {
+  game.hideDialog("ContinueGame");
+  game.hideDialog("movie");
+  game.showDialog("SelectKlasse");
+}
+
+function selectKlasse(klasse) {
+  model.setValue("Klasse", klasse)
+  game.hideDialog("SelectKlasse");
+  selectPlayer();
+}
 
 function restartGame() {
   model.reset();
@@ -110,7 +122,7 @@ function selectPlayer() {
       // hide movie background
       game.hideDialog("ContinueGame");
       game.hideDialog("movie");
-
+      game.hideDialog("SelectKlasse");
       var size = Math.min(canvas.height, canvas.width);
       //var centerX = Math.floor(canvas.width/2);
       var centerX = Math.floor(canvas.width - size/2);
@@ -136,6 +148,11 @@ function loadImage(items, i, onComplete) {
     items[i] = img;
 }
 
+function cancelIntro() {
+     Movie.cancel();
+     selectKlasseDialog();
+}
+
 function initialize() {
       var canvas = document.getElementById('mainarea');
       var myDiv = document.getElementById('maindiv');
@@ -144,9 +161,11 @@ function initialize() {
       canvas.height = myDiv.offsetHeight;
       model.setValue('Canvas', canvas);
       model.setValue('Hint', false);
-            // connect click on help button
+      // connect click on help button
       var hintButton = document.getElementById('help');
       hintButton.addEventListener('click', showHint, false);
+      var hintButton = document.getElementById('movie');
+      hintButton.addEventListener('click', cancelIntro, false);
       loader(items, loadImage, checkContinue);
       };
 
@@ -172,6 +191,13 @@ function initialize() {
 <ul>
 <li><div onclick="restartGame()" class="neu"><p class="zentriert">Neues Spiel</p></div></li>
 <li><div onclick="selectPlayer()" class="weiter"><p class="zentriert">Weiterspielen</p></div></li>
+</ul>
+</div> <!-- id="ContinueGame" -->
+<div id="SelectKlasse">
+<h1>In welcher Klasse bist du?</h1>
+<ul>
+<li><div onclick="selectKlasse(2)" ><p class="zentriert">2. Klasse</p></div></li>
+<li><div onclick="selectKlasse(3)" ><p class="zentriert">3. Klasse</p></div></li>
 </ul>
 </div> <!-- id="ContinueGame" -->
 <div id="game">
