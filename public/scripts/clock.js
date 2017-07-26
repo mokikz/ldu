@@ -34,24 +34,10 @@ LernDieUhr.Clock = (function(){
     radius = 0;
     size = 0;
     model = undefined;
+    initialized = false;
 
     // private functions
  
-function checkNewHour(alpha, lastAlpha) {
-  if ((Math.abs(alpha) < 90) && (Math.abs(lastAlpha) < 90)) {
-    return 0;
-    }
-  if ((lastAlpha < 0) && (alpha >= 0)) {
-    // clockwise
-    return 1;
-  }
-  else if ((lastAlpha >= 0) && (alpha < 0)) {
-    // anticlockwise
-    return -1;
-    }
-  return 0;
-  }
-
 function checkDirection (alpha, lastAlpha, direction) {
   var dir = lastAlpha - alpha;
   // direction clockwise and angle anticlockwise
@@ -78,81 +64,6 @@ function checkDirection (alpha, lastAlpha, direction) {
     }
   return direction;
   } 
-
-function calculatePhi(mouseX,mouseY) {
-    if ((mouseX == lastMouseX)&&(mouseY == lastMouseY)) {
-      return;
-      }
-    relX = mouseX - centerX;
-    relY = mouseY - centerY;
-    alpha = Math.atan2(relX, relY);
-    newHour = checkNewHour(alpha*rad2deg , lastAlpha*rad2deg);
-    lastAlpha = alpha;
-    if (alpha < 0) {
-      alpha = -alpha + Math.PI;
-      }      
-    else {
-      alpha = Math.PI - alpha;
-      }
-
-    direction = checkDirection(alpha, lastAlpha, direction);
-    // 
-    delta = lastAlpha - alpha; 
-    if (direction == -1) {
-      delta = Math.abs(delta); 
-      }
-    else {
-      delta = -1 * Math.abs(delta); 
-      }
-    minute = Math.floor((alpha*rad2deg)/6) % 60;
-    if (newHour == 1) {
-      completedHours+= 1;
-      }
-    else if (newHour == -1) {
-      completedHours -= 1;
-      if (minute == 0) {
-        pendingHour = 1;
-        }
-      }
-    else {
-      pendingHour = 0;
-      }
-    if (completedHours < 0 ) {
-      completedHours += 24;
-      }
-    completedHours = completedHours % 24; 
-    hour = completedHours + pendingHour;
-    model.setTime(hour,minute);
-    lastMouseX = mouseX;
-    lastMouseY = mouseY;
-    }
-/*
-function initialize() {
-      console.log("Clock::initialize()");
-      var canvas = document.getElementById('mainarea');
-      var myDiv = document.getElementById('maindiv');
-      registerEvents();
-      canvas.width = myDiv.offsetWidth;
-      canvas.height = myDiv.offsetHeight;
-      var width = canvas.width;
-      var height = canvas.height;
-      size = width;
-      if (width >= height) {
-        size = height;
-        }
-      radius = Math.floor(size/2);
-      centerX = Math.floor(width/2);
-      centerY = Math.floor(height/2);
-      var context = canvas.getContext('2d');
-      context.translate(centerX, centerY);
-
-      var now=new Date();
-      minute = now.getMinutes();
-      completedHours = now.getHours();
-      showTime();
-      draw();
-      };
-*/
 
    function registerEvents() {
       console.log("Clock::registerEvents()");
@@ -212,16 +123,20 @@ function initialize() {
 
 function checkNewHour(alpha, lastAlpha) {
   if ((Math.abs(alpha) < 90) && (Math.abs(lastAlpha) < 90)) {
+    console.log("221 Clock::checkNewHour("+alpha + ", "+lastAlpha+") = 0 " );
     return 0;
     }
   if ((lastAlpha < 0) && (alpha >= 0)) {
     // clockwise
+    console.log("221 Clock::checkNewHour("+alpha + ", "+lastAlpha+") = 1 " );
     return 1;
   }
   else if ((lastAlpha >= 0) && (alpha < 0)) {
     // anticlockwise
+    console.log("221 Clock::checkNewHour("+alpha + ", "+lastAlpha+") = -1 " );
     return -1;
     }
+  console.log("221 Clock::checkNewHour("+alpha + ", "+lastAlpha+") = 0 " );
   return 0;
   }
 
@@ -261,6 +176,7 @@ function calculatePhi(mouseX,mouseY) {
     relX = mouseX - centerX;
     relY = mouseY - centerY;
     alpha = Math.atan2(relX, relY);
+    console.log("Zeile 170 Clock::calculatePhi(" + relX + ", " + relY + ") = " + alpha*rad2deg);
     newHour = checkNewHour(alpha*rad2deg , lastAlpha*rad2deg);
     lastAlpha = alpha;
     if (alpha < 0) {
@@ -345,11 +261,25 @@ function showTime(mouseX, mouseY) {
         completedHours = hour;
         that.completedHours = hour;
         that.minute = minute;
+        // calculate 
+        lastAlpha = 6 * minute;
+        if (lastAlpha >= 180) {
+          lastAlpha -= 180;
+          lastAlpha = lastAlpha * -1;
+          }
+        lastAlpha = lastAlpha / rad2deg;
+        that.lastAlpha = lastAlpha;
+        console.log("lastAlpha = "+ lastAlpha);
         draw();
         }
 
     function resizeCanvas() {
       console.log("Clock::resizeCanvas()");
+      var visible = $('#mainarea').is(':visible');
+      if(!visible){
+        console.log("Canvas is hidden");
+        return;
+        }
       var canvas = document.getElementById('mainarea');
       var myDiv = document.getElementById('maindiv');
       var oldSizeX = canvas.width;
@@ -372,10 +302,15 @@ function showTime(mouseX, mouseY) {
 
       context = canvas.getContext('2d');
       context.translate(centerX, centerY);
+      console.log("context = " + context);
       draw();
       }
 
     function draw() {
+      if (!initialized) {
+        console.log("Clock::draw() skipped");
+        return;
+        }
       console.log("Clock::draw()");
       var outerBorder = radius - 12;
       var innerBorder = radius - 21;
@@ -388,6 +323,7 @@ function showTime(mouseX, mouseY) {
       var secondHand = radius - 40;
       if (canvas.getContext) {
         var c2d=context;
+        console.log("context = " + c2d);
         c2d.clearRect(-size/2,-size/2,size,size);
         //Define gradients for 3D / shadow effect
         var grad1=c2d.createLinearGradient(0,0,canvas.width,canvas.height);
@@ -508,6 +444,7 @@ function showTime(mouseX, mouseY) {
         //Alternative would be to simply reverse the original translate
         //c2d.restore();
         //setTimeout(draw,1000);
+      console.log("Clock::draw() finished");
       }
     }
 
@@ -523,11 +460,12 @@ function showTime(mouseX, mouseY) {
         that = this;
         canvas = model.getValue("Canvas");
         //if (_me == undefined) {
-          this.context = canvas.getContext('2d');
-          context = this.context;
-          size = _size;
-          this.timechanged = undefined;
-          _me = this;
+        this.context = canvas.getContext('2d');
+        context = this.context;
+        console.log("context = " + context);
+        size = _size;
+        this.timechanged = undefined;
+        _me = this;
       //    }
       registerEvents();
       this.radius = Math.floor(size/2);
@@ -541,6 +479,7 @@ function showTime(mouseX, mouseY) {
       var now=new Date();
       this.minute = now.getMinutes();
       this.completedHours = now.getHours();
+      initialized = true;
       //minute = this.minute;
       completedHours = this.completedHours;
       model.setTime(this.completedHours, this.minute);
@@ -550,7 +489,7 @@ function showTime(mouseX, mouseY) {
        };
 
     Clock.prototype.draw = function() {
-        console.log("Clock::draw()");
+        console.log("method Clock::draw()");
         return draw();
         }
     Clock.prototype.resizeCanvas = function() {
