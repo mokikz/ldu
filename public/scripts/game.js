@@ -107,7 +107,7 @@ function registerEvents() {
 
     // module properties
     var Game = function(){
-        console.log("Game::Construktor()");
+        console.log("Game::Constructor()");
         this.moduleProperty = 1;
         return this;
     };
