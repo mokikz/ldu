@@ -5,27 +5,12 @@ var connect = require('connect');
 var serveStatic = require('serve-static');
 var app = connect();
 var port = 3000;
-var url = require('url');
 
-// redirect index.html to jimdo homepage
-app.use(function (req, res, next){
-  if ((url.parse(req.url).pathname == '/')||
-     (url.parse(req.url).pathname == '/index.html')) {
-    res.writeHead(301, {Location: 'https://mokikz.jimdo.com/'});
-    res.end();
-  }
-  else {
-    next();
-  }
-});
-
-// send filtered data.js according to url options
-app.use(function (req, res, next){
-    next();
-});
+serveStatic.index = false;
 
 //server static files
-app.use(serveStatic(__dirname + "/public"));
+//app.use(serveStatic(__dirname + "/public"));
+app.use(serveStatic(__dirname + "/public", {'index': ['mainframe.html']}));
 
 app.use(function (req, res, next) {
   console.log(req.method + ': ' + req.url);
