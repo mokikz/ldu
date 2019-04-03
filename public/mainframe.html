@@ -9,6 +9,8 @@
 <link rel="apple-touch-icon" sizes="76x76" href="icons/app_76x76.png">
 <link rel="apple-touch-icon" sizes="120x120" href="icons/app_120x120.png">
 <link rel="apple-touch-icon" sizes="152x152" href="icons/app_152x152.png">
+<link rel="shortcut icon" href="icons/favicon.ico" type="image/x-icon">
+<link rel="icon" href="icons/favicon.ico" type="image/x-icon">
 
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 <title>Lern die Uhr</title>
@@ -41,15 +43,9 @@ var model = new LernDieUhr.Model;
 var clock = new LernDieUhr.Clock;
 var TimeWords = new Format.TimeWords();
 var game = new LernDieUhr.Game;
-var items = ['images/intro-start.jpg', //0
-             'images/intro3.jpg', //1
-             'images/klopfklopf.png', //2
-             'images/intro3.jpg', //3
-             'images/intro4.jpg', //4
-             'images/klopfklopf.png', //5
-             'images/intro5.jpg', //6
-             'images/intro6.jpg', //7
-             'images/intro7.jpg', //8
+var items = ['images/story1.png', //0
+             'images/story1.png', //0
+             'images/story1.png', //0
              'images/anleitung1.jpg', //9
              'images/anleitung2.jpg', //10
              ];
@@ -72,16 +68,10 @@ function playIntro (items) {
     // initialize intro movie
     // Zoom (duration, toX, toY, width, height, translatex, translatey, fade)
     // Pann (context, img, duration,  X,   Y, width, height, translatex, translatey )
-    var scenes = [["Fade", 2500, 0,0,0,0,true], //0
-                  ["FadeIn", 2000, 0, true], //1
-                  ["Fade", 2000, 0,0,0,0,true], //2
-                  ["Zoom", 4000, 375, 640, 225, 160, false], //3
-                  ["Fade", 1500, 0,0,0,0,true], //4
-                  ["Fade", 2000, 0,0,0,0,true], //5
-                  ["FadeIn", 3000, 0, true], //6
-                  ["Fade", 5000, 0, true], //7
-                  ["Fade", 7000, 0, true], //8
-                  //["Pann", 5000, 1540,0, 1440, 1080, -1540, 0],
+    var scenes = [["FadeIn", 2000, 0,0,0,0,true], //0
+                  //["Pann", 2000, 0,0,0,0,true], //0
+                  ["Pann", 12000, 0,0, 1044, 783, 0, 0],
+                  ["Fade", 2000, 0,0,0,0,true], //0
                   ["Fade", 5000, 0,0,0,0,true], //9
                   ["Fade", 5000, 0,0,0,0,true], //10
               ];
@@ -128,7 +118,7 @@ function selectPlayer() {
       var centerX = Math.floor(canvas.width - size/2);
       var centerY = Math.floor(canvas.height- size/2);
 
-      clock.init(model, size, centerX, centerY); 
+      clock.init(model, size, centerX, centerY);
       clock.draw();
       game.init(model);
 }
@@ -214,7 +204,7 @@ function initialize() {
   <div class='layer2'></div>
   <div class="layer3">
   <div class='layer3 blink' id='blink'></div>
-  <div class='layer3 eyes' id='Eyes'></div> 
+  <div class='layer3 eyes' id='Eyes'></div>
       <canvas id="mainarea">The &lt;canvas&gt; element is not supported by your browser!</canvas>
 <script type="application/x-javascript">
   window.addEventListener('resize', resizeCanvas, false);
@@ -234,15 +224,15 @@ function showTime() {
         if (hour == 0) {displayHour = "00"};
         if (minute < 10) {displayMinute = "0" + minute};
         if (minute == 0) {displayMinute = "00"};
-	//hintControl.innerHTML = displayHour + ":" + displayMinute + " " + TimeWords.getTime(hour,minute) + "<br/>" + TimeWords.getQuarters(hour, minute) + "<br/>" + TimeWords.getEnglishQuarters(hour, minute) ; 
+	//hintControl.innerHTML = displayHour + ":" + displayMinute + " " + TimeWords.getTime(hour,minute) + "<br/>" + TimeWords.getQuarters(hour, minute) + "<br/>" + TimeWords.getEnglishQuarters(hour, minute) ;
         var text = displayHour + ":" + displayMinute;
         if (TimeWords.getQuarters(hour, minute)) {
-	    text += " " + TimeWords.getQuarters(hour, minute) + " oder " + TimeWords.getEnglishQuarters(hour, minute); 
+	    text += " " + TimeWords.getQuarters(hour, minute) + " oder " + TimeWords.getEnglishQuarters(hour, minute);
             }
-	hintControl.innerHTML = text; 
+	hintControl.innerHTML = text;
         }
     else {
-        hintControl.innerHTML = '<br/>'; 
+        hintControl.innerHTML = '<br/>';
         document.removeEventListener('DataChanged', showTime, false);
         }
     }
@@ -278,19 +268,18 @@ function hideHint() {
 </div> <!--id="game"-->
 <div id="LevelDone" class="Dialog">
 <img class="dialogImage" src="images/success.png">
-<h2 class="success" id="LevelDoneText"> Gut gemacht </h2> 
+<h2 class="success" id="LevelDoneText"> Gut gemacht </h2>
 </div> <!-- id="LevelDone" -->
 <div id="LevelFailed" class="Dialog">
 <img class="dialogImage" src="images/fail.png">
-<h2 class="success" id="LevelFailedText"> Das kannst du besser! </h2> 
+<h2 class="success" id="LevelFailedText"> Das kannst du besser! </h2>
 </div> <!-- id="LevelFailed" -->
 <div id="WorldCompleted" class="Dialog" onclick="game.hideDialog('WorldCompleted')">
 <img class="dialogImage monster" src="images/worldfinished.gif">
-<h2 class="success" id="WorldCompletedText"> Spitze! <br/> Du hast alle Aufgaben geschafft <br/>und bist dem Geheimnis </br>wieder ein Stück näher gekommen!  </h2> 
+<h2 class="success" id="WorldCompletedText"> Spitze! <br/> Du hast alle Aufgaben geschafft <br/>und bist dem Geheimnis </br>wieder ein Stück näher gekommen!  </h2>
 </div> <!-- id="WorldCompleted" -->
 <div id="AllCompleted" class="Dialog">
-<h2 class="success" id="AllCompletedText"> Spitze! <br/> Du hast alle Aufgaben geschafft <br> und bist dem Geheimnis ein großes Stück näher gekommen!<br/> Komm bald wieder, <br>dann gibt es neue Aufgaben.  </h2> 
+<h2 class="success" id="AllCompletedText"> Spitze! <br/> Du hast alle Aufgaben geschafft <br> und bist dem Geheimnis ein großes Stück näher gekommen!<br/> Komm bald wieder, <br>dann gibt es neue Aufgaben.  </h2>
 </div> <!-- id="WorldCompleted" -->
 
 </body>
-
