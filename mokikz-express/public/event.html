@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--<html xmlns="http://www.w3.org/1999/xhtml" manifest="uhr.appcache">-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="viewport" content="user-scalable=no, width=device-width" />
+<link rel="apple-touch-icon" href="icons/app_60x60.png">
+<link rel="apple-touch-icon" sizes="76x76" href="icons/app_76x76.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icons/app_120x120.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/app_152x152.png">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Lern die Uhr</title>
+<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/scripts/clock.js"></script>
+<script src="/scripts/movie.js"></script>
+<script src="/scripts/cache.js"></script>
+<link rel="stylesheet" media="all and (orientation:portrait)" href="ldu-portrait.css" />
+<link rel="stylesheet" media="all and (orientation:landscape)" href="ldu-landscape.css" />
+<script type="application/x-javascript">
+
+function handleCustomEvent(e) {
+alert("Received Event");
+}
+
+function handleCustomEvent2(e) {
+alert("Received Event by handler 2");
+}
+
+function emitDataChanged(element) {
+var myEvent = new CustomEvent('dataavailable', {detail:{test:"mist"}}); // The custom event that will be created
+document.dispatchEvent(myEvent);
+}
+
+
+function init() {
+  document.addEventListener('dataavailable', handleCustomEvent);
+  document.addEventListener('dataavailable', handleCustomEvent2);
+}
+
+</script>
+</head>
+<body onload='init()'>
+<div id="game">
+<img class="bigbutton" src="images/ok.png"/ onclick="emitDataChanged(this);">
+    
+</div>
+</body>

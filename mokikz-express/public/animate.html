@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" manifest="offline.manifest">
+<head>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<title>offline</title>
+<style type="text/css">
+.image {
+    position: absolute;
+    top: 50vw;
+    left: 50vh;
+    width: 120px;
+    height: 120px;
+    margin:-60px 0 0 -60px;
+    -webkit-animation:spin 16s linear infinite;
+    -moz-animation:spin 16s linear infinite;
+    animation:spin 16s linear infinite;
+}
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+@-moz-keyframes spin-anti {0% { -moz-transform: rotate(0deg); } 100% { -moz-transform: rotate(-180deg); } }
+@-webkit-keyframes spin-anti { 100% { -webkit-transform: rotate(-180deg); } }
+@keyframes spin-anti { 100% { -webkit-transform: rotate(-180deg); transform:rotate(-180deg); } }
+
+#layer1 {
+}
+
+#layer2 {
+    -webkit-animation:spin-anti 16s linear infinite;
+    -moz-animation:spin-anti 16s linear infinite;
+    animation:spin-anti 16s linear infinite;
+}
+
+#layer3 {
+    -webkit-animation:spin 12s linear infinite;
+    -moz-animation:spin 12s linear infinite;
+    animation:spin 12s linear infinite;
+}
+
+</style>
+</head>
+
+<body>
+<img class="image" id="layer1" src="images/stern1.png" alt="" width="120" height="120">
+<img class="image" id="layer2" src="images/stern2.png" alt="" width="120" height="120">
+<img class="image" id="layer3" src="images/stern3.png" alt="" width="120" height="120">
+</body>
+

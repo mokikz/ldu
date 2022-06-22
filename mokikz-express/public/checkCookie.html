@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--<html xmlns="http://www.w3.org/1999/xhtml" manifest="uhr.appcache">-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="viewport" content="user-scalable=no, width=device-width" />
+<link rel="apple-touch-icon" href="icons/app_60x60.png">
+<link rel="apple-touch-icon" sizes="76x76" href="icons/app_76x76.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icons/app_120x120.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/app_152x152.png">
+<link rel="apple-touch-startup-image" href="/images/loading.png">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Lern die Uhr</title>
+<script src="/scripts/jquery-1.11.2.min.js"></script>
+<script src="/scripts/js.cookie.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/scripts/data.js"></script>
+<script src="/scripts/persistence.js"></script>
+<script src="/scripts/model.js"></script>
+<script src="/scripts/game.js"></script>
+
+<link rel="stylesheet" media="all and (orientation:portrait)" href="ldu-portrait.css" />
+<link rel="stylesheet" media="all and (orientation:landscape)" href="ldu-landscape.css" />
+<script type="application/x-javascript">
+
+var persistence = new LernDieUhr.Persistence;
+var model = new LernDieUhr.Model;
+var game = new LernDieUhr.Game;
+
+function hideDialog(id) {
+    console.log("Game::hideDialog(" + id + ")");
+    var dialog = document.getElementById(id);
+    dialog.style.display = "none";
+    // play animation and move to next level
+    // dialog.style.animationPlayState = "paused";
+    }
+
+function restartGame() {
+  alert("continue");
+  hideDialog("ContinueGame");
+}
+
+function continueGame() {
+  alert("restart");
+  hideDialog("ContinueGame");
+}
+
+</script>
+<style>
+ul {
+  list-style-type: none;
+  line-height: 1.5em;
+  margin: 15vh;
+  font-size: 200%
+}
+li {
+  padding: 0.3em;
+  padding-top:0.7em;
+  text-align:center;
+}
+li div {
+  height: 30vh;
+  border: 1px solid rgba(0,0,0,.1);
+  background: #58a linear-gradient(hsla(0,0%,100%,.2),transparent);
+  border-radius: 0.2em;
+  box-shadow: 0 -.05em .05em rgba(0,0,0,.5);
+  text-shadow: 0 -.05em .05em rgba(0,0,0,.5);
+  color: white;
+}
+
+li div.weiter {
+  background-color: #6b0;
+}
+
+li div.neu {
+  background-color: #c00;
+}
+
+.zentriert {
+position: relative;
+margin: 0;
+top: 50%;
+-webkit-transform: translateY(-50%);
+-ms-transform: translateY(-50%);
+transform: translateY(-50%);
+}
+
+</style>
+</head>
+<body>
+  <!-- Start page container -->
+<div id="ContinueGame">
+<ul>
+<li><div onclick="restartGame()" class="neu"><p class="zentriert">Neues Spiel</p></div></li>
+<li><div onclick="continueGame()" class="weiter"><p class="zentriert">Weiterspielen</p></div></li>
+</ul>
+</div> <!-- id="ContinueGame"
+<div id="SelectPlayer">
+<div>
+<img class="dialogImage" src="images/ei-braun-gelb.png">
+<p id="braun-gelb"/>
+</div>
+<div>
+<img class="dialogImage" src="images/ei-gruen-blau.png">
+<p id="gruen-blau"/>
+</div>
+<div>
+<img class="dialogImage" src="images/ei-rot-weiss.png">
+<p id="rot-weiss"/>
+</div>
+</div> <!-- id="SelectPlayer" -->
+</body>
+

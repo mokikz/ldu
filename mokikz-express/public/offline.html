@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" manifest="offline.manifest">
+<head>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<title>offline</title>
+<style type="text/css">
+div.leftcol {
+  float: left;
+  width: 66%;
+    height: 90%;
+}
+body {
+  margin:0;
+  }
+p {
+  font-size: 3em;
+  font-weight: bold;
+  font-family: sans-serif;
+  text-align: center;
+}
+footer {
+  background-color: #999;
+  width: 100%;
+  height: 2em;
+  bottom: 0;
+  position: fixed;
+  padding: 0;
+  margin: 0;
+  }
+footer > p {
+  font-size: 0.8em;
+  }
+footer > p > img {
+  height: 0.8em;
+  
+  }
+</style>
+<script src="/socket.io/socket.io.js"></script>
+<script type="application/x-javascript">
+
+var networkStatus = 'disconnected';
+var cacheStatusValues = [];
+cacheStatusValues[0] = 'uncached';
+cacheStatusValues[1] = 'idle';
+cacheStatusValues[2] = 'checking';
+cacheStatusValues[3] = 'downloading';
+cacheStatusValues[4] = 'updateready';
+cacheStatusValues[5] = 'obsolete';
+
+var cache = window.applicationCache;
+cache.addEventListener('cached', logEvent, false);
+cache.addEventListener('checking', logEvent, false);
+cache.addEventListener('downloading', logEvent, false);
+cache.addEventListener('error', logEvent, false);
+cache.addEventListener('noupdate', logEvent, false);
+cache.addEventListener('obsolete', logEvent, false);
+cache.addEventListener('progress', logEvent, false);
+cache.addEventListener('updateready', logEvent, false);
+
+  alert("loading socket");
+  var socket = io('http://users-macbook:3000');
+  socket.on('connect', function(){networkStatus='connected'});
+  socket.on('disconnect', function(){networkStatus='disconnected'});
+  socket.on('reconnecting', function(){networkStatus='disconnected'});
+  socket.on('connecting', function(){networkStatus='disconnected'});
+  socket.on('reconnect', function(){networkStatus='connected'});
+  socket.on('event', receiveEvent);
+  socket.on('settime', function(){alert("settime");});
+
+function showNetworkStatus() {
+  var elem = document.getElementById("NetworkStatus");
+  if (networkStatus=="connected") {
+    elem.src = '/images/connect.png';
+    }
+  else {
+    elem.src = '/images/disconnect.png';
+    } 
+  alert(networkStatus);
+}
+
+function sendTime (elem){
+  var elem = document.getElementById("TimeInput");
+  var t = elem.value;
+  socket.emit('question', {time: t});
+}
+
+function updateStatus(){
+  window.applicationCache.update()
+  setInterval(updateStatus, 10000);
+  showNetworkStatus();
+}
+
+function receiveEvent(data) {
+	alert ("event" + data);
+	}
+
+function logEvent(e) {
+    var footer = document.getElementById('footer');
+    var online, status, type, message;
+    online = (navigator.onLine) ? 'yes' : 'no';
+    status = cacheStatusValues[cache.status];
+    if (e) {
+      type = e.type
+      };
+    message = 'online: ' + online;
+    message+= ', event: ' + type;
+    message+= ', status: ' + status;
+    if (type == 'error' && navigator.onLine) {
+        message+= ' error';
+    }
+    footer.innerHTML = message; 
+
+}
+
+window.applicationCache.addEventListener(
+    'updateready',
+    function(){
+var r = confirm("Neues Update steht bereit. Soll es geladen werden?");
+if (r == true) {
+  window.applicationCache.swapCache();
+  console.log('swap cache has been called');
+  window.location.reload();
+  } else {
+  console.log('swap cache cancelled');
+}
+    },
+    false
+);
+
+</script>
+</head>
+  <!-- Start page container -->
+<div class="rightcol">
+  <p id="message">???</p>
+  <input name='myTime' id='TimeInput' type='text' size="5" maxlength="5">
+  <input name='myButton' type='button' value='Submit time' onclick="sendTime()">
+  <input name='myButton2' type='button' value='disconnect' onclick="socket.disconnect()">
+  <p id="debug">07:00</p> 
+  <p id="footer">06:00</p> 
+
+</div>
+<!-- footer -->
+<footer><img id='NetworkStatus' src='/images/disconnect.png'/><p>xxx</p></footer>
+<script>
+setInterval(function(){window.applicationCache.update();}, 10000);
+setInterval(updateStatus, 3000);
+logEvent();
+</script>
+</body>
+

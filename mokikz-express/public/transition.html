@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--<html xmlns="http://www.w3.org/1999/xhtml" manifest="uhr.appcache">-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Lern die Uhr</title>
+<link rel="stylesheet" media="all and (orientation:portrait)" href="ldu-portrait.css" />
+<link rel="stylesheet" media="all and (orientation:landscape)" href="ldu-landscape.css" />
+
+<style type="text/css">
+.box {
+  margin-left: 1%;
+  width: 3%;
+  height: 3vh;
+  background-color: blue;
+    -webkit-transition: all 1.0s ease-in-out; 
+    -moz-transition: all 1.0s ease-in-out; 
+    -ms-transition: all 1.0s ease-in-out; 
+  transition: all 1.0s ease-in-out; 
+  overflow:hidden;
+}
+
+.box.horizTranslate {
+  width: 30%;
+  height: 30vh;
+  background-color: blue;
+    -webkit-transition: all 1.0s ease-in-out; 
+    -moz-transition: all 1.0s ease-in-out; 
+    -ms-transition: all 1.0s ease-in-out; 
+    transition: all 1.0s ease-in-out; 
+    margin-left: 50%;
+    background-color: red;
+}
+
+</style>
+</head>
+<body onload='blink()'>
+  <!-- Start page container -->
+<div><p> Layer 1</p> </div>
+  <div class="layer3"></div>
+  <div class='layer3 blink' id='blink'></div>
+  <div class='layer3 eyes' id='Eyes'></div> 
+
+<script>
+
+ function rand (min, max) {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function blink () {
+  var div = document.getElementById("Eyes");
+  if ( div.classList.contains('blink') ) {
+    div.classList.toggle('blink');
+    setTimeout(blink, rand(3300,6000)); // intervall zwischen Lidschlaegen
+    }
+  else {
+    div.classList.add('blink');
+    setTimeout(blink, rand(300,400)); //dauer Lidschlag 
+    //div.classList.remove('Move');
+    }
+  }
+</script>
+</body>
+
