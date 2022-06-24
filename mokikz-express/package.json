@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "node ./node_modules/mocha/bin/mocha -u tdd --recursive ./test"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -13,5 +14,9 @@
     "morgan": "~1.9.1",
     "pug": "^3.0.2",
     "socket.io": "^4.5.1"
+  },
+  "devDependencies": {
+    "@sealsystems/mocha": "4.2.3",
+    "supertest": "6.2.3"
   }
 }
