@@ -1,8 +1,6 @@
-var express = require('express');
-var router = express.Router();
 
 /* GET users listing. */
-router.get('/scripts/data.js', function(req, res, next) {
+const dataJs = function (req, res, next) {
     // read class name from cookie if possible
     var dataFile = __dirname + "/public/data/" + klasse + ".js" ;
     var defaultFile = __dirname + "/public/data/data.js" ;
@@ -20,6 +18,6 @@ router.get('/scripts/data.js', function(req, res, next) {
     // res.setHeader('content-type', 'text/javascript');
     res.write(fileJs);
     res.end();
-});
+};
 
-module.exports = router;
+module.exports = dataJs;

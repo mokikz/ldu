@@ -34,7 +34,7 @@ app.get('/:klasse', function (req, res, next) {
 // routes
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/data.js', dataRouter);
+app.get('/data.js', dataRouter);
 
 // serving static application files
 app.use(express.static(path.join(__dirname, 'public'), { 'index': ['mainframe.html'] }));
