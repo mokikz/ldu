@@ -11,7 +11,6 @@ var dataRouter = require('./routes/data');
 var app = express();
 
 var klasse = "data";
-console.log('Hello from the beginning!')
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -56,4 +55,3 @@ app.use(function (err, req, res, next) {
 });
 
 module.exports = app;
-console.log('End of app.js')
