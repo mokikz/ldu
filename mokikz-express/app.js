@@ -11,7 +11,7 @@ var dataRouter = require('./routes/data');
 var app = express();
 
 var klasse = "data";
-
+console.log('Hello from the beginning!')
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -23,18 +23,18 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.get('/:klasse', function (req, res, next) {
-  var klasse = req.query.klasse
-  if (klasse) {
-    //write klasse into cookie
-    res.cookie('klasse', klasse);
-  }
+  if (req.query.klasse) {
+      //write klasse into cookie
+      klasse = req.query.klasse;
+      }
+  res.cookie('klasse', klasse);
   next();
 });
 
 // routes
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.get('/data.js', dataRouter);
+app.get('/scripts/data.js', dataRouter);
 
 // serving static application files
 app.use(express.static(path.join(__dirname, 'public'), { 'index': ['mainframe.html'] }));
@@ -56,3 +56,4 @@ app.use(function (err, req, res, next) {
 });
 
 module.exports = app;
+console.log('End of app.js')

@@ -1,37 +1,38 @@
 <!DOCTYPE html>
 <!--<html xmlns="http://www.w3.org/1999/xhtml" manifest="uhr.appcache">-->
 <html xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="viewport" content="user-scalable=no, width=device-width" />
-<link rel="apple-touch-icon" href="icons/app_60x60.png">
-<link rel="apple-touch-icon" sizes="76x76" href="icons/app_76x76.png">
-<link rel="apple-touch-icon" sizes="120x120" href="icons/app_120x120.png">
-<link rel="apple-touch-icon" sizes="152x152" href="icons/app_152x152.png">
-<link rel="shortcut icon" href="icons/favicon.ico" type="image/x-icon">
-<link rel="icon" href="icons/favicon.ico" type="image/x-icon">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="user-scalable=no, width=device-width" />
+  <link rel="apple-touch-icon" href="icons/app_60x60.png">
+  <link rel="apple-touch-icon" sizes="76x76" href="icons/app_76x76.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="icons/app_120x120.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icons/app_152x152.png">
+  <link rel="shortcut icon" href="icons/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="icons/favicon.ico" type="image/x-icon">
 
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-<title>Lern die Uhr</title>
-<script src="/scripts/jquery-1.11.2.min.js"></script>
-<script src="/scripts/js.cookie.js"></script>
-<script src="/socket.io/socket.io.js"></script>
-<script src="/scripts/data.js"></script>
-<script src="/scripts/cache.js"></script>
-<script src="/scripts/clock.js"></script>
-<script src="/scripts/character.js"></script>
-<script src="/scripts/loader.js"></script>
-<script src="/scripts/game.js"></script>
-<script src="/scripts/persistence.js"></script>
-<script src="/scripts/model.js"></script>
-<script src="/scripts/movie.js"></script>
-<script src="/scripts/score.js"></script>
-<script src="/scripts/timewords.js"></script>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <title>Lern die Uhr</title>
+  <script src="/scripts/jquery-1.11.2.min.js"></script>
+  <script src="/scripts/js.cookie.js"></script>
+  <!--<script src="/socket.io/socket.io.js"></script>-->
+  <script src="/scripts/data.js"></script>
+  <script src="/scripts/cache.js"></script>
+  <script src="/scripts/clock.js"></script>
+  <script src="/scripts/character.js"></script>
+  <script src="/scripts/loader.js"></script>
+  <script src="/scripts/game.js"></script>
+  <script src="/scripts/persistence.js"></script>
+  <script src="/scripts/model.js"></script>
+  <script src="/scripts/movie.js"></script>
+  <script src="/scripts/score.js"></script>
+  <script src="/scripts/timewords.js"></script>
 
-<link rel="stylesheet" media="all and (orientation:portrait)" href="ldu-portrait.css" />
-<link rel="stylesheet" media="all and (orientation:landscape)" href="ldu-landscape.css" />
-<script type="application/x-javascript">
+  <link rel="stylesheet" media="all and (orientation:portrait)" href="ldu-portrait.css" />
+  <link rel="stylesheet" media="all and (orientation:landscape)" href="ldu-landscape.css" />
+  <script type="application/x-javascript">
 // Internet Explorer 6-11
 var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
@@ -173,40 +174,62 @@ function initialize() {
 
 </script>
 </head>
+
 <body onload="initialize()">
   <!-- Start page container -->
-<div id="Loading">
-</div> <!-- id="Loading" -->
-<div id="ContinueGame">
-<ul>
-<li><div onclick="restartGame()" class="neu"><p class="zentriert">Neues Spiel</p></div></li>
-<li><div onclick="selectPlayer()" class="weiter"><p class="zentriert">Weiterspielen</p></div></li>
-</ul>
-</div> <!-- id="ContinueGame" -->
-<div id="SelectKlasse">
-<h1>In welcher Klasse bist du?</h1>
-<ul>
-<li><div onclick="selectKlasse(2)" ><p class="zentriert">2. Klasse</p></div></li>
-<li><div onclick="selectKlasse(3)" ><p class="zentriert">3. Klasse</p></div></li>
-</ul>
-</div> <!-- id="ContinueGame" -->
-<div id="game">
-<header>
-<div class="group">
-<div class="left"><div class="panel left" id='score'>00</div></div>
-<!--<div class="left"><div class="panel center" id='online'>xxx</div></div>-->
-<div class="right"><div class="panel right" id='help'><br/></div></div>
-</div> <!--class="group"-->
-</header>
+  <div id="Loading">
+  </div> <!-- id="Loading" -->
+  <div id="ContinueGame">
+    <ul>
+      <li>
+        <div onclick="restartGame()" class="neu">
+          <p class="zentriert">Neues Spiel</p>
+        </div>
+      </li>
+      <li>
+        <div onclick="selectPlayer()" class="weiter">
+          <p class="zentriert">Weiterspielen</p>
+        </div>
+      </li>
+    </ul>
+  </div> <!-- id="ContinueGame" -->
+  <div id="SelectKlasse">
+    <h1>In welcher Klasse bist du?</h1>
+    <ul>
+      <li>
+        <div onclick="selectKlasse(2)">
+          <p class="zentriert">2. Klasse</p>
+        </div>
+      </li>
+      <li>
+        <div onclick="selectKlasse(3)">
+          <p class="zentriert">3. Klasse</p>
+        </div>
+      </li>
+    </ul>
+  </div> <!-- id="ContinueGame" -->
+  <div id="game">
+    <header>
+      <div class="group">
+        <div class="left">
+          <div class="panel left" id='score'>00</div>
+        </div>
+        <!--<div class="left"><div class="panel center" id='online'>xxx</div></div>-->
+        <div class="right">
+          <div class="panel right" id='help'><br /></div>
+        </div>
+      </div>
+      <!--class="group"-->
+    </header>
 
-<div class="group" id="maindiv">
-  <!-- Right content -->
-  <div class='layer2'></div>
-  <div class="layer3">
-  <div class='layer3 blink' id='blink'></div>
-  <div class='layer3 eyes' id='Eyes'></div>
-      <canvas id="mainarea">The &lt;canvas&gt; element is not supported by your browser!</canvas>
-<script type="application/x-javascript">
+    <div class="group" id="maindiv">
+      <!-- Right content -->
+      <div class='layer2'></div>
+      <div class="layer3">
+        <div class='layer3 blink' id='blink'></div>
+        <div class='layer3 eyes' id='Eyes'></div>
+        <canvas id="mainarea">The &lt;canvas&gt; element is not supported by your browser!</canvas>
+        <script type="application/x-javascript">
   window.addEventListener('resize', resizeCanvas, false);
 
 function showTime() {
@@ -249,37 +272,45 @@ function hideHint() {
 
 </script>
 
-</div>
-</div> <!--class="group"-->
-<div id='movie' class="layer4">
+      </div>
+    </div>
+    <!--class="group"-->
+    <div id='movie' class="layer4">
       <canvas id="moviearea">The &lt;canvas&gt; element is not supported by your browser!</canvas>
-</div>
-<!-- footer -->
-<footer>
-<div class="panel bottom">
-<div class="horizontalgroup">
-<div id='task'><p/></div>
-<div id="controls">
-<img id="okButton" class="bigbutton" src="images/ok.png"/>
-<div> <!-- controls -->
-</div> <!--class="group"-->
-</div> <!-- panel center -->
-</footer>
-</div> <!--id="game"-->
-<div id="LevelDone" class="Dialog">
-<img class="dialogImage" src="images/success.png">
-<h2 class="success" id="LevelDoneText"> Gut gemacht </h2>
-</div> <!-- id="LevelDone" -->
-<div id="LevelFailed" class="Dialog">
-<img class="dialogImage" src="images/fail.png">
-<h2 class="success" id="LevelFailedText"> Das kannst du besser! </h2>
-</div> <!-- id="LevelFailed" -->
-<div id="WorldCompleted" class="Dialog" onclick="game.hideDialog('WorldCompleted')">
-<img class="dialogImage monster" src="images/worldfinished.gif">
-<h2 class="success" id="WorldCompletedText"> Spitze! <br/> Du hast alle Aufgaben geschafft <br/>und bist dem Geheimnis </br>wieder ein Stück näher gekommen!  </h2>
-</div> <!-- id="WorldCompleted" -->
-<div id="AllCompleted" class="Dialog">
-<h2 class="success" id="AllCompletedText"> Spitze! <br/> Du hast alle Aufgaben geschafft <br> und bist dem Geheimnis ein großes Stück näher gekommen!<br/> Komm bald wieder, <br>dann gibt es neue Aufgaben.  </h2>
-</div> <!-- id="WorldCompleted" -->
+    </div>
+    <!-- footer -->
+    <footer>
+      <div class="panel bottom">
+        <div class="horizontalgroup">
+          <div id='task'>
+            <p />
+          </div>
+          <div id="controls">
+            <img id="okButton" class="bigbutton" src="images/ok.png" />
+            <div>
+              <!-- controls -->
+            </div>
+            <!--class="group"-->
+          </div> <!-- panel center -->
+    </footer>
+  </div>
+  <!--id="game"-->
+  <div id="LevelDone" class="Dialog">
+    <img class="dialogImage" src="images/success.png">
+    <h2 class="success" id="LevelDoneText"> Gut gemacht </h2>
+  </div> <!-- id="LevelDone" -->
+  <div id="LevelFailed" class="Dialog">
+    <img class="dialogImage" src="images/fail.png">
+    <h2 class="success" id="LevelFailedText"> Das kannst du besser! </h2>
+  </div> <!-- id="LevelFailed" -->
+  <div id="WorldCompleted" class="Dialog" onclick="game.hideDialog('WorldCompleted')">
+    <img class="dialogImage monster" src="images/worldfinished.gif">
+    <h2 class="success" id="WorldCompletedText"> Spitze! <br /> Du hast alle Aufgaben geschafft <br />und bist dem
+      Geheimnis </br>wieder ein Stück näher gekommen! </h2>
+  </div> <!-- id="WorldCompleted" -->
+  <div id="AllCompleted" class="Dialog">
+    <h2 class="success" id="AllCompletedText"> Spitze! <br /> Du hast alle Aufgaben geschafft <br> und bist dem
+      Geheimnis ein großes Stück näher gekommen!<br /> Komm bald wieder, <br>dann gibt es neue Aufgaben. </h2>
+  </div> <!-- id="WorldCompleted" -->
 
 </body>
