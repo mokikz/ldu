@@ -1,8 +1,9 @@
 FROM node:16.15-alpine
 
-COPY ./mokikz-express /lerndieuhr
+WORKDIR /usr/lerndieuhr
+COPY ./mokikz-express /usr/lerndieuhr
 
 EXPOSE 3000
-RUN npm install --omit=dev
-CMD node /lerndieuhr/bin/www
+RUN npm install
+CMD node /usr/lerndieuhr/bin/www
 
