@@ -1,4 +1,4 @@
-FROM node:alpine
+FROM node:16.15-alpine
 
 COPY ./mokikz-express /lerndieuhr
 
