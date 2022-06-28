@@ -1,6 +1,6 @@
     var levels = [
         {"world": "Start",
-         "klasse": [2],
+         "klasse": [1,2,3],
          "type": "Zeiger einstellen",
          "levels": [
            {"label": "Stell die Uhr auf ein Uhr", startHour: 10, startMinute: 0, zielHour: "01", zielMinute: "00"},
@@ -28,6 +28,17 @@
            {"label": "Stell die Uhr auf 19:00 Uhr", startHour: 3, startMinute: 0, zielHour: "07", zielMinute: "00"},
            {"label": "Stell die Uhr auf 0 Uhr", startHour: 12, startMinute: 0, zielHour: "12", zielMinute: "00"}
            ] },
+         {"world": "Intervalle",
+         "klasse": [1,2,3],
+         "type": "Zeiger einstellen",
+         "levels": [
+           {"label": "Stell die Uhr eine Stunde vor", startHour: 10, startMinute: 0, zielHour: "11", zielMinute: "00"},
+           {"label": "Stell die Uhr zwei Stunden zurück", startHour: 11, startMinute: 0, zielHour: "9", zielMinute: "00"},
+           {"label": "Stell die Uhr 2 Stunden vor", startHour: 1, startMinute: 0, zielHour: "3", zielMinute: "00"},
+           {"label": "Stell die Uhr 12 Stunden vor", startHour: 6, startMinute: 0, zielHour: "18", zielMinute: "00"},
+           {"label": "Stell die Uhr auf drei Stunden zurück", startHour: 2, startMinute: 0, zielHour: "11", zielMinute: "00"},
+           {"label": "Stell die Uhr auf 6 Stunden vor", startHour: 4, startMinute: 0, zielHour: "10", zielMinute: "00"},
+           ] }
         {"world": "Halbe und viertel Stunden",
          "klasse": [2],
          "type": "Zeiger einstellen",
