@@ -387,7 +387,7 @@ li {
   text-align:center;
 }
 li div {
-  height: 30vh;
+  height: 20vh;
   border: 1px solid rgba(0,0,0,.1);
   background: #58a linear-gradient(hsla(0,0%,100%,.2),transparent);
   border-radius: 0.2em;
