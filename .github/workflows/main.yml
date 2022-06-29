@@ -35,5 +35,5 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/lerndieuhr:v6.0
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/lerndieuhr:v6.${{github.run_number}}
           buildkitd-flags: --debug
