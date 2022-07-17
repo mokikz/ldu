@@ -2,7 +2,7 @@
 
 
 **"Lern die Uhr"** ist eine kleine node.js App zum lernen der Uhr auf Tablets.
-Die App ist vor allem für die Verwendung im Unterricht (Grundschule 2/3 Jahrgangsstufe) konzpiert.
+Die App ist vor allem für die Verwendung im Unterricht (Grundschule 1-3 Jahrgangsstufe) konzpiert.
 
 Wenn du sehen willst wie es aussieht, schau auf:
 
