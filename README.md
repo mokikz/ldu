@@ -1,6 +1,5 @@
 # mokikz - Lern die Uhr
 
-
 **"Lern die Uhr"** ist eine kleine node.js App zum lernen der Uhr auf Tablets.
 Die App ist vor allem für die Verwendung im Unterricht (Grundschule Jahrgangsstufe 1-3) konzpiert.
 
