@@ -2,7 +2,7 @@
 
 
 **"Lern die Uhr"** ist eine kleine node.js App zum lernen der Uhr auf Tablets.
-Die App ist vor allem für die Verwendung im Unterricht (Grundschule 2/3 Jahrgangsstufe) konzpiert.
+Die App ist vor allem für die Verwendung im Unterricht (Grundschule Jahrgangsstufe 1-3) konzpiert.
 
 Wenn du sehen willst wie es aussieht, schau auf:
 
@@ -23,3 +23,8 @@ Wer sagt, dass lernen keinen Spass machen darf?
 * Lehrer haben meist wenig Zeit um sich um sich mit der IT-Infrastruktur der Schule zu beschäftigen
 * Die Unterrichtsvorbereitung findet in der Regel zu Hause statt. Von dort aus sind On-Premise installierte Programme nicht zu erreichen
 * Um mit einer Klasse zum üben in einen Computerraum zu gehen wird relativ viel Zeit benötigt. iPads mit Webapplikationen können während einer Stunde genau so leicht ausgeteilt und eingesammelt werden wie Arbeitsblätter.
+
+## Projektstruktur
+* /ressources Vorlagen für die Grafiken im Spiel
+* /mokikz-express Hauptordner mir allen Dateien für das Spiel
+* /mokikz-express/public

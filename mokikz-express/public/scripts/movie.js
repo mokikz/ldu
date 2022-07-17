@@ -390,7 +390,7 @@ var Movie = {
         }, 
         
     nextScene : function() {
-        console.timeEnd("scene");
+        //console.timeEnd("scene");
         Movie.currentScene +=1;
         if (Movie.currentScene >= Movie.scenes.length) {
           Movie.playing = false;
