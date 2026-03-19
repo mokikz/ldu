@@ -1,6 +1,16 @@
 var levels = [
   {
     "world": "Start",
+    "klasse": [1],
+    "type": "Zeiger einstellen",
+    "levels": [
+      { "label": "Stell die Uhr auf ein Uhr", startHour: 10, startMinute: 0, zielHour: "01", zielMinute: "00" },
+      { "label": "Stell die Uhr auf 3:00Uhr", startHour: 12, zielHour: 3, zielMinute: "00" },
+      { "label": "Stell die Uhr auf 10:00 Uhr", startHour: 6, startMinute: 0, zielHour: "10", zielMinute: "00" },
+      { "label": "Stell die Uhr auf 0 Uhr", startHour: 12, startMinute: 0, zielHour: "12", zielMinute: "00" }
+    ]
+  },{
+    "world": "Start",
     "klasse": [2],
     "type": "Zeiger einstellen",
     "levels": [

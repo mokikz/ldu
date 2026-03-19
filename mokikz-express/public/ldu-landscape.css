@@ -310,6 +310,24 @@ div.rightcol {
   width: 30vw;
 }
 
+#LevelMap {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: none;
+  z-index: 55;
+  background-color: #000;
+  touch-action: manipulation;
+}
+
+#levelMapCanvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
 #Loading {
   position: absolute;
   width: 100%;

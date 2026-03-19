@@ -10,6 +10,7 @@ LernDieUhr.Game = (function () {
   var questionControl;
   let character;
   let score;
+  let levelMap;
   let that;
   let model;
 
@@ -55,6 +56,13 @@ LernDieUhr.Game = (function () {
   }
 
   // private functions
+  function isLastLevelOfWorld() {
+    const currentWorld = model.getValue('currentWorld');
+    const currentLevel = model.getValue('currentLevel');
+    const levelsOfWorld = levels[currentWorld]['levels'];
+    return currentLevel >= levelsOfWorld.length - 1;
+  }
+
   function levelCompleted() {
     // read current time from model
     console.log('Game::levelCompleted()');
@@ -80,13 +88,26 @@ LernDieUhr.Game = (function () {
     if (wantedHour % 12 == hour % 12 && wantedMinute == minute) {
       //if (((wantedHour == hour) && (wantedMinute == minute))||
       //    ((wantedHour == hour-12) && (wantedMinute == minute))){
+      const worldWillComplete = isLastLevelOfWorld();
+      const completedWorldIndex = model.getValue('currentWorld');
+      const completedLevelIndex = model.getValue('currentLevel');
       // show LevelDone
       showDialog('LevelDone');
       // increase score
       model.increaseValue('score');
-      setTimeout(hideDialog, 2000, 'LevelDone');
-      that.loadLevel();
       model.persist();
+      setTimeout(function () {
+        hideDialog('LevelDone');
+        that.loadLevel();
+        levelMap.show({
+          worldCompleted: worldWillComplete,
+          completedWorldIndex: completedWorldIndex,
+          completedLevelIndex: completedLevelIndex,
+          onContinue: function () {
+            levelMap.hide();
+          }
+        });
+      }, 2000);
     } else {
       // show failure
       showDialog('LevelFailed');
@@ -181,7 +202,6 @@ LernDieUhr.Game = (function () {
           window.location.href = "/pacman.html";
           return;
         }
-        showDialog('WorldCompleted');
         model.setValue('currentWorld', currentWorld);
         currentLevel = 0;
         model.setValue('currentLevel', currentLevel);
@@ -197,7 +217,6 @@ else if (currentLevel >= levelsOfWorld.length - 1) {
         window.location.href = "/pacman.html";
         return;
       }
-      showDialog('WorldCompleted');
       model.setValue('currentWorld', currentWorld);
       currentLevel = 0;
       model.setValue('currentLevel', currentLevel);
@@ -231,6 +250,8 @@ else if (currentLevel >= levelsOfWorld.length - 1) {
     score.init(model);
     character = new LernDieUhr.Character();
     character.init(model);
+    levelMap = new LernDieUhr.LevelMap();
+    levelMap.init(model);
     // register events for animations
     if (!model.initialized()) {
       model.setValue('currentLevel', -1);
