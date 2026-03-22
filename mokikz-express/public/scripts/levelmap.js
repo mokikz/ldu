@@ -5,83 +5,123 @@ var LernDieUhr = window.LernDieUhr || {};
 
 LernDieUhr.LevelMap = (function () {
   var canvas, ctx, model;
-  var dragonImg;
+  var dragonImg, bgImg;
   var scrollY = 0;
   var targetScrollY = 0;
   var animFrameId = null;
   var onContinueCallback = null;
   var worldCompleted = false;
+  var preGame = false;
   var doorAngle = 0;
   var doorAnimDone = false;
   var canContinue = false;
-  var stars = [];
 
-  var NODE_SPACING = 110;
   var NODE_RADIUS = 22;
   var DRAGON_SIZE = 56;
   var DOOR_W = 64;
   var DOOR_H = 88;
 
-  // --- drawing helpers ---
+  // Level node positions in original image pixel coordinates (index 0 = first level)
+  var NODE_POSITIONS = [
+    {x: 1080, y: 1520},
+    {x:  716, y: 1438},
+    {x:  558, y: 1266},
+    {x:  218, y: 1224},
+    {x:  152, y: 1026},
+    {x:  446, y: 1048},
+    {x:  720, y:  990},
+    {x: 1022, y:  864},
+    {x:  808, y:  696},
+    {x:  708, y:  562},
+    {x:  138, y:  480},
+    {x:  268, y:  318},
+    {x:  558, y:  348},
+    {x:  828, y:  244},
+    {x:  996, y:  115}
+  ];
 
-  function drawBackground() {
-    var grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grad.addColorStop(0, '#0a0520');
-    grad.addColorStop(1, '#1a0a3a');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // --- coordinate helpers ---
+
+  function getScale() {
+    if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
+      return canvas.width / bgImg.naturalWidth;
+    }
+    return 1;
   }
 
-  function drawStars() {
-    ctx.fillStyle = 'rgba(255,255,255,0.8)';
-    for (var i = 0; i < stars.length; i++) {
-      ctx.beginPath();
-      ctx.arc(stars[i].x, stars[i].y, stars[i].r, 0, Math.PI * 2);
-      ctx.fill();
+  function getVirtualHeight() {
+    if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
+      return bgImg.naturalHeight * getScale();
+    }
+    return canvas.height;
+  }
+
+  function nodeCanvas(i) {
+    var s = getScale();
+    return {x: NODE_POSITIONS[i].x * s, y: NODE_POSITIONS[i].y * s};
+  }
+
+  // --- drawing ---
+
+  function drawBackground(virtualHeight) {
+    if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
+      ctx.drawImage(bgImg, 0, 0, canvas.width, virtualHeight);
+    } else {
+      var grad = ctx.createLinearGradient(0, 0, 0, virtualHeight);
+      grad.addColorStop(0, '#0a0520');
+      grad.addColorStop(1, '#1a0a3a');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, virtualHeight);
     }
   }
 
-  function initStars() {
-    stars = [];
-    for (var i = 0; i < 60; i++) {
-      stars.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 1.5 + 0.3
-      });
-    }
-  }
+  function drawPath(numNodes, completedIndex) {
+    if (numNodes < 2) return;
 
-  function getNodeX(i, numLevels, cx) {
-    // zigzag: even indices left, odd indices right
-    var offset = Math.min(cx * 0.35, 80);
-    return i % 2 === 0 ? cx - offset : cx + offset;
-  }
-
-  function getNodeY(i, baseY) {
-    return baseY - i * NODE_SPACING;
-  }
-
-  function drawPath(numLevels, cx, baseY) {
-    ctx.strokeStyle = 'rgba(200,170,100,0.5)';
-    ctx.lineWidth = 8;
+    // Shadow / outline for legibility against the background
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
+
+    // Dark outline
     ctx.beginPath();
-    for (var i = 0; i <= numLevels; i++) {
-      var x = getNodeX(i, numLevels, cx);
-      var y = getNodeY(i, baseY);
-      if (i === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
+    var p0 = nodeCanvas(0);
+    ctx.moveTo(p0.x, p0.y);
+    for (var i = 1; i < numNodes; i++) {
+      var p = nodeCanvas(i);
+      ctx.lineTo(p.x, p.y);
     }
-    // extend to door
-    var doorX = cx;
-    var doorY = getNodeY(numLevels, baseY) - NODE_SPACING;
-    ctx.lineTo(doorX, doorY + DOOR_H);
+    ctx.strokeStyle = 'rgba(80,0,0,0.7)';
+    ctx.lineWidth = 10;
     ctx.stroke();
+
+    // Completed segment — bright red
+    if (completedIndex >= 1) {
+      ctx.beginPath();
+      ctx.moveTo(nodeCanvas(0).x, nodeCanvas(0).y);
+      for (var j = 1; j <= completedIndex; j++) {
+        var pc = nodeCanvas(j);
+        ctx.lineTo(pc.x, pc.y);
+      }
+      ctx.strokeStyle = 'rgba(220,30,30,0.95)';
+      ctx.lineWidth = 6;
+      ctx.stroke();
+    }
+
+    // Upcoming segment — dimmer red
+    if (completedIndex < numNodes - 1) {
+      ctx.beginPath();
+      var start = nodeCanvas(completedIndex);
+      ctx.moveTo(start.x, start.y);
+      for (var k = completedIndex + 1; k < numNodes; k++) {
+        var pn = nodeCanvas(k);
+        ctx.lineTo(pn.x, pn.y);
+      }
+      ctx.strokeStyle = 'rgba(180,60,60,0.5)';
+      ctx.lineWidth = 4;
+      ctx.setLineDash([8, 6]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
   }
 
   function drawGoldStar(x, y, radius) {
@@ -93,15 +133,9 @@ LernDieUhr.LevelMap = (function () {
     ctx.beginPath();
     ctx.moveTo(x, y - outerRadius);
     for (var i = 0; i < spikes; i++) {
-      ctx.lineTo(
-        x + Math.cos(rot) * outerRadius,
-        y + Math.sin(rot) * outerRadius
-      );
+      ctx.lineTo(x + Math.cos(rot) * outerRadius, y + Math.sin(rot) * outerRadius);
       rot += step;
-      ctx.lineTo(
-        x + Math.cos(rot) * innerRadius,
-        y + Math.sin(rot) * innerRadius
-      );
+      ctx.lineTo(x + Math.cos(rot) * innerRadius, y + Math.sin(rot) * innerRadius);
       rot += step;
     }
     ctx.lineTo(x, y - outerRadius);
@@ -116,12 +150,11 @@ LernDieUhr.LevelMap = (function () {
   function drawLockedNode(x, y) {
     ctx.beginPath();
     ctx.arc(x, y, NODE_RADIUS, 0, Math.PI * 2);
-    ctx.fillStyle = '#333355';
+    ctx.fillStyle = 'rgba(30,20,60,0.7)';
     ctx.fill();
     ctx.strokeStyle = '#555577';
     ctx.lineWidth = 2;
     ctx.stroke();
-    // padlock icon
     ctx.strokeStyle = '#888';
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -136,13 +169,11 @@ LernDieUhr.LevelMap = (function () {
   }
 
   function drawDragon(x, y) {
-    // node highlight ring
     ctx.beginPath();
     ctx.arc(x, y, NODE_RADIUS + 6, 0, Math.PI * 2);
     ctx.strokeStyle = 'rgba(100,200,255,0.7)';
     ctx.lineWidth = 3;
     ctx.stroke();
-    // draw dragon centered above the node
     var imgY = y - DRAGON_SIZE - NODE_RADIUS + 8;
     ctx.drawImage(dragonImg, x - DRAGON_SIZE / 2, imgY, DRAGON_SIZE, DRAGON_SIZE);
   }
@@ -150,53 +181,38 @@ LernDieUhr.LevelMap = (function () {
   function drawDoor(x, y, angle) {
     var fw = DOOR_W + 12;
     var fh = DOOR_H + 8;
-    // golden glow behind door when opening
     if (angle > Math.PI / 5) {
-      var glow = ctx.createRadialGradient(x, y, 0, x, y, DOOR_W);
       var alpha = Math.min(1, (angle - Math.PI / 5) / (Math.PI / 4));
+      var glow = ctx.createRadialGradient(x, y, 0, x, y, DOOR_W);
       glow.addColorStop(0, 'rgba(255,220,50,' + (alpha * 0.9) + ')');
       glow.addColorStop(1, 'rgba(255,150,0,0)');
       ctx.fillStyle = glow;
       ctx.fillRect(x - DOOR_W, y - DOOR_H - 10, DOOR_W * 2, DOOR_H + 20);
     }
-
-    // door frame
     ctx.fillStyle = '#5C3317';
     ctx.fillRect(x - fw / 2, y - fh, fw, fh);
-
-    // arch top of frame
     ctx.beginPath();
     ctx.arc(x, y - fh, fw / 2, Math.PI, 0);
     ctx.fillStyle = '#5C3317';
     ctx.fill();
-
-    // left door panel (rotates outward around its left edge)
     ctx.save();
     ctx.translate(x - DOOR_W / 2, y - DOOR_H);
-    // perspective: skew x as angle increases
     var skew = Math.sin(angle) * 0.6;
     ctx.transform(Math.cos(angle), 0, -skew, 1, 0, 0);
     ctx.fillStyle = '#8B4513';
     ctx.fillRect(0, 0, DOOR_W / 2, DOOR_H);
-    // panel lines
-    ctx.strokeStyle = '#6B3410';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#6B3410'; ctx.lineWidth = 1.5;
     ctx.strokeRect(4, 4, DOOR_W / 2 - 8, DOOR_H / 2 - 8);
     ctx.strokeRect(4, DOOR_H / 2 + 4, DOOR_W / 2 - 8, DOOR_H / 2 - 12);
     ctx.restore();
-
-    // right door panel (rotates outward around its right edge)
     ctx.save();
     ctx.translate(x + DOOR_W / 2, y - DOOR_H);
     ctx.transform(Math.cos(angle), 0, skew, 1, 0, 0);
     ctx.fillStyle = '#8B4513';
     ctx.fillRect(-DOOR_W / 2, 0, DOOR_W / 2, DOOR_H);
-    // panel lines
-    ctx.strokeStyle = '#6B3410';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#6B3410'; ctx.lineWidth = 1.5;
     ctx.strokeRect(-DOOR_W / 2 + 4, 4, DOOR_W / 2 - 8, DOOR_H / 2 - 8);
     ctx.strokeRect(-DOOR_W / 2 + 4, DOOR_H / 2 + 4, DOOR_W / 2 - 8, DOOR_H / 2 - 12);
-    // door handle on right panel
     ctx.fillStyle = '#FFD700';
     ctx.beginPath();
     ctx.arc(-8, DOOR_H / 2, 5, 0, Math.PI * 2);
@@ -207,28 +223,20 @@ LernDieUhr.LevelMap = (function () {
   function drawClosedDoor(x, y) {
     var fw = DOOR_W + 12;
     var fh = DOOR_H + 8;
-
-    // door frame
     ctx.fillStyle = '#5C3317';
     ctx.fillRect(x - fw / 2, y - fh, fw, fh);
     ctx.beginPath();
     ctx.arc(x, y - fh, fw / 2, Math.PI, 0);
     ctx.fillStyle = '#5C3317';
     ctx.fill();
-
-    // door
     ctx.fillStyle = '#8B4513';
     ctx.fillRect(x - DOOR_W / 2, y - DOOR_H, DOOR_W, DOOR_H);
-    ctx.strokeStyle = '#6B3410';
-    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#6B3410'; ctx.lineWidth = 1.5;
     ctx.strokeRect(x - DOOR_W / 2 + 4, y - DOOR_H + 4, DOOR_W / 2 - 8, DOOR_H / 2 - 8);
     ctx.strokeRect(x + 4, y - DOOR_H + 4, DOOR_W / 2 - 8, DOOR_H / 2 - 8);
     ctx.strokeRect(x - DOOR_W / 2 + 4, y - DOOR_H / 2 + 4, DOOR_W / 2 - 8, DOOR_H / 2 - 12);
     ctx.strokeRect(x + 4, y - DOOR_H / 2 + 4, DOOR_W / 2 - 8, DOOR_H / 2 - 12);
-
-    // lock
-    ctx.strokeStyle = '#FFD700';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(x, y - DOOR_H / 2 - 5, 6, Math.PI, 0);
     ctx.stroke();
@@ -241,7 +249,7 @@ LernDieUhr.LevelMap = (function () {
   }
 
   function drawTitle(worldName) {
-    ctx.fillStyle = 'rgba(0,0,0,0.45)';
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
     ctx.fillRect(0, 0, canvas.width, 54);
     ctx.fillStyle = '#FFD700';
     ctx.font = 'bold ' + Math.min(26, canvas.width / 14) + 'px sans-serif';
@@ -251,74 +259,64 @@ LernDieUhr.LevelMap = (function () {
   }
 
   function drawContinueHint() {
-    ctx.font = '18px sans-serif';
+    ctx.font = 'bold 18px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
-    ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.fillText('Tippe um weiterzuspielen', canvas.width / 2, canvas.height - 8);
+    var text = preGame ? 'Tippe um zu spielen' : 'Tippe um weiterzuspielen';
+    var x = canvas.width / 2;
+    var y = canvas.height - 8;
+    ctx.strokeStyle = 'rgba(0,0,0,0.9)';
+    ctx.lineWidth = 4;
+    ctx.lineJoin = 'round';
+    ctx.strokeText(text, x, y);
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+    ctx.fillText(text, x, y);
   }
 
   // --- main render ---
 
-  function render(timestamp) {
-    var worldIndex = model.getValue('currentWorld');
-    // When world just completed, model already advanced to new world.
-    // We track the world to display via displayWorldIndex set in show().
-    worldIndex = displayWorldIndex;
-
-    var currentLevel = model.getValue('currentLevel');
-    // When worldCompleted, the completed level was the last of the old world.
-    // displayCompletedLevel holds the index of the just-finished level.
-    var completedLevelIndex = displayCompletedLevel;
-
+  function render() {
     // eslint-disable-next-line no-undef
-    var worldData = levels[worldIndex];
+    var worldData = levels[displayWorldIndex];
     var numLevels = worldData.levels.length;
-    var cx = canvas.width / 2;
+    // Clamp to available node positions
+    var numNodes = Math.min(numLevels, NODE_POSITIONS.length);
+    var completedIndex = Math.min(displayCompletedLevel, numNodes - 1);
 
-    // virtual map: node 0 at bottom, last node at top; door above last node
-    var virtualHeight = (numLevels + 2) * NODE_SPACING + DOOR_H + 20;
-    var baseY = virtualHeight - NODE_SPACING; // y of node 0 in virtual space
+    var virtualHeight = getVirtualHeight();
+    var maxScroll = Math.max(0, virtualHeight - canvas.height);
 
-    // target scroll: keep dragon node vertically centered
-    var dragonVirtualY = getNodeY(completedLevelIndex, baseY);
-    targetScrollY = virtualHeight - canvas.height / 2 - dragonVirtualY;
-    // clamp scroll
-    var maxScroll = virtualHeight - canvas.height;
+    // Scroll toward dragon node
+    var dragonPos = nodeCanvas(completedIndex);
+    targetScrollY = virtualHeight - canvas.height / 2 - dragonPos.y;
     if (targetScrollY < 0) targetScrollY = 0;
     if (targetScrollY > maxScroll) targetScrollY = maxScroll;
-
-    // ease scroll
     scrollY += (targetScrollY - scrollY) * 0.08;
 
-    // background (fixed)
-    drawBackground();
-    drawStars();
-
-    // scrolled content
+    // --- scrolled content ---
     ctx.save();
     ctx.translate(0, canvas.height - virtualHeight + scrollY);
 
-    drawPath(numLevels, cx, baseY);
+    drawBackground(virtualHeight);
+    drawPath(numNodes, completedIndex);
 
-    // level nodes
-    for (var i = 0; i < numLevels; i++) {
-      var nx = getNodeX(i, numLevels, cx);
-      var ny = getNodeY(i, baseY);
-      if (i < completedLevelIndex) {
-        drawGoldStar(nx, ny, NODE_RADIUS);
-      } else if (i === completedLevelIndex) {
-        drawGoldStar(nx, ny, NODE_RADIUS);
-        drawDragon(nx, ny);
+    // Level nodes (path drawn first so nodes sit on top)
+    for (var i = 0; i < numNodes; i++) {
+      var p = nodeCanvas(i);
+      if (i < completedIndex) {
+        drawGoldStar(p.x, p.y, NODE_RADIUS);
+      } else if (i === completedIndex) {
+        if (!preGame) drawGoldStar(p.x, p.y, NODE_RADIUS); // no star before playing
+        drawDragon(p.x, p.y);
       } else {
-        drawLockedNode(nx, ny);
+        drawLockedNode(p.x, p.y);
       }
     }
 
-    // door at top
-    var doorX = cx;
-    var doorY = getNodeY(numLevels, baseY) - NODE_SPACING + DOOR_H;
-
+    // Door above the last node
+    var lastP = nodeCanvas(numNodes - 1);
+    var doorX = lastP.x;
+    var doorY = lastP.y - DRAGON_SIZE - NODE_RADIUS - 10;
     if (worldCompleted) {
       drawDoor(doorX, doorY, doorAngle);
     } else {
@@ -327,13 +325,11 @@ LernDieUhr.LevelMap = (function () {
 
     ctx.restore();
 
-    // fixed UI on top
+    // --- fixed UI ---
     drawTitle(worldData.world);
-    if (canContinue) {
-      drawContinueHint();
-    }
+    if (canContinue) drawContinueHint();
 
-    // door animation
+    // Door animation
     if (worldCompleted && !doorAnimDone) {
       var target = Math.PI / 2;
       doorAngle += (target - doorAngle) * 0.04;
@@ -360,53 +356,51 @@ LernDieUhr.LevelMap = (function () {
     ctx = canvas.getContext('2d');
     dragonImg = new Image();
     dragonImg.src = '/images/mokikz_256.png';
+    bgImg = new Image();
+    bgImg.src = '/images/background_levelmap.jpg';
   };
 
   LevelMap.prototype.show = function (config) {
     worldCompleted = config.worldCompleted || false;
+    preGame = config.preGame || false;
     onContinueCallback = config.onContinue || null;
 
-    // If world was completed, model.currentWorld already points to the NEW world,
-    // and model.currentLevel is 0 (first level of new world).
-    // We display the OLD world's map with the last completed level.
-    if (worldCompleted) {
+    if (preGame) {
+      displayWorldIndex = model.getValue('currentWorld');
+      displayCompletedLevel = model.getValue('currentLevel'); // level about to be played
+    } else if (worldCompleted) {
       displayWorldIndex = config.completedWorldIndex;
       displayCompletedLevel = config.completedLevelIndex;
     } else {
       displayWorldIndex = model.getValue('currentWorld');
-      // currentLevel was just advanced to next level by loadLevel(),
-      // so subtract 1 to get the just-completed level.
       displayCompletedLevel = model.getValue('currentLevel') - 1;
       if (displayCompletedLevel < 0) displayCompletedLevel = 0;
     }
 
     doorAngle = 0;
     doorAnimDone = false;
-    canContinue = !worldCompleted; // immediate tap if no door anim
-
-    // resize canvas to match display
-    canvas.width = canvas.offsetWidth || window.innerWidth;
-    canvas.height = canvas.offsetHeight || window.innerHeight;
-    initStars();
-
-    // reset scroll to bottom so dragon is visible
-    var worldData = levels[displayWorldIndex]; // eslint-disable-line no-undef
-    var numLevels = worldData.levels.length;
-    var virtualHeight = (numLevels + 2) * NODE_SPACING + DOOR_H + 20;
-    var baseY = virtualHeight - NODE_SPACING;
-    var dragonVirtualY = getNodeY(displayCompletedLevel, baseY);
-    scrollY = virtualHeight - canvas.height / 2 - dragonVirtualY;
-    if (scrollY < 0) scrollY = 0;
+    canContinue = preGame || !worldCompleted;
 
     var overlay = document.getElementById('LevelMap');
     overlay.style.display = 'block';
+    canvas.width  = canvas.offsetWidth  || window.innerWidth;
+    canvas.height = canvas.offsetHeight || window.innerHeight;
 
-    if (animFrameId) {
-      window.cancelAnimationFrame(animFrameId);
-    }
+    // Set initial scroll immediately (no easing jump)
+    var numLevels = levels[displayWorldIndex].levels.length; // eslint-disable-line no-undef
+    var numNodes = Math.min(numLevels, NODE_POSITIONS.length);
+    var idx = Math.min(displayCompletedLevel, numNodes - 1);
+    var virtualHeight = getVirtualHeight();
+    var dragonPos = nodeCanvas(idx);
+    var maxScroll = Math.max(0, virtualHeight - canvas.height);
+    scrollY = virtualHeight - canvas.height / 2 - dragonPos.y;
+    if (scrollY < 0) scrollY = 0;
+    if (scrollY > maxScroll) scrollY = maxScroll;
+    targetScrollY = scrollY;
+
+    if (animFrameId) window.cancelAnimationFrame(animFrameId);
     animFrameId = window.requestAnimationFrame(render);
 
-    // tap / click to continue
     overlay.addEventListener('click', handleContinue, false);
     overlay.addEventListener('touchend', handleContinue, false);
   };
@@ -425,9 +419,7 @@ LernDieUhr.LevelMap = (function () {
   function handleContinue(e) {
     e.preventDefault();
     if (!canContinue) return;
-    if (onContinueCallback) {
-      onContinueCallback();
-    }
+    if (onContinueCallback) onContinueCallback();
   }
 
   return LevelMap;

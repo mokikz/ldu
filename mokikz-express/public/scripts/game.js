@@ -263,6 +263,10 @@ else if (currentLevel >= levelsOfWorld.length - 1) {
     } else {
       this.loadLevel(true);
     }
+    levelMap.show({
+      preGame: true,
+      onContinue: function () { levelMap.hide(); }
+    });
   };
   return Game;
 })();
