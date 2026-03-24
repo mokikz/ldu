@@ -51,7 +51,7 @@ table {
 
   }
 
-#newFileDialog {
+.modalOverlay {
   display: none;
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -61,11 +61,11 @@ table {
   justify-content: center;
 }
 
-#newFileDialog.open {
+.modalOverlay.open {
   display: flex;
 }
 
-#newFileDialogBox {
+.modalBox {
   background: #fff;
   border-radius: 8px;
   padding: 1.5em 2em;
@@ -73,18 +73,18 @@ table {
   box-shadow: 0 4px 24px rgba(0,0,0,0.3);
 }
 
-#newFileDialogBox h2 {
+.modalBox h2 {
   margin-top: 0;
 }
 
-#newFileDialogBox label {
+.modalBox label {
   display: block;
   margin-top: 0.8em;
   font-weight: bold;
 }
 
-#newFileDialogBox input,
-#newFileDialogBox select {
+.modalBox input:not([type="checkbox"]),
+.modalBox select {
   display: block;
   width: 100%;
   margin-top: 0.3em;
@@ -93,7 +93,20 @@ table {
   box-sizing: border-box;
 }
 
-#newFileDialogBox .dialogButtons {
+.modalBox .checkboxGroup {
+  margin-top: 0.4em;
+  display: flex;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+
+.modalBox .checkboxGroup label {
+  display: inline;
+  font-weight: normal;
+  margin-top: 0;
+}
+
+.modalBox .dialogButtons {
   margin-top: 1.2em;
   display: flex;
   gap: 0.5em;
@@ -123,8 +136,8 @@ var isEdge = !isIE && !!window.StyleMedia;
   <button type='button' onclick='saveData()'>Aufgaben am Server speichern</button>
 </div>
 </header>
-<div id="newFileDialog">
-  <div id="newFileDialogBox">
+<div id="newFileDialog" class="modalOverlay">
+  <div class="modalBox">
     <h2>Neue Datendatei anlegen</h2>
     <label for="newFileName">Dateiname (ohne .js)</label>
     <input type="text" id="newFileName" placeholder="z.B. klasse3" />
@@ -133,6 +146,29 @@ var isEdge = !isIE && !!window.StyleMedia;
     <div class="dialogButtons">
       <button type="button" onclick="cancelNewFile()">Abbrechen</button>
       <button type="button" onclick="createNewFile()">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<div id="addWorldDialog" class="modalOverlay">
+  <div class="modalBox">
+    <h2>Aufgabenblock hinzuf&uuml;gen</h2>
+    <label for="addWorldName">Name des Aufgabenblocks</label>
+    <input type="text" id="addWorldName" placeholder="z.B. Viertelstunden" />
+    <label for="addWorldType">Aufgabentyp</label>
+    <select id="addWorldType"></select>
+    <label>Klasse</label>
+    <div class="checkboxGroup">
+      <label><input type="checkbox" id="addWorldKlasse1" value="1"> Klasse 1</label>
+      <label><input type="checkbox" id="addWorldKlasse2" value="2"> Klasse 2</label>
+      <label><input type="checkbox" id="addWorldKlasse3" value="3"> Klasse 3</label>
+      <label><input type="checkbox" id="addWorldKlasse4" value="4"> Klasse 4</label>
+    </div>
+    <label for="addWorldPosition">Einf&uuml;gen nach</label>
+    <select id="addWorldPosition"></select>
+    <div class="dialogButtons">
+      <button type="button" onclick="cancelAddWorld()">Abbrechen</button>
+      <button type="button" onclick="saveAddWorld()">Speichern</button>
     </div>
   </div>
 </div>
@@ -188,7 +224,8 @@ function levelRowContent(world, key) {
     '<td>' + data['zielHour'] + ':' + data['zielMinute'] + '</td>' +
     '<td>' +
       "<img src='images/delete.png' onclick='deleteLevel(" + world + "," + key + ")' title='Aufgabe L\xf6schen'> " +
-      "<button type='button' onclick='editLevel(" + world + "," + key + ")' title='Aufgabe bearbeiten'>&#9998;</button>" +
+      "<button type='button' onclick='editLevel(" + world + "," + key + ")' title='Aufgabe bearbeiten'>&#9998;</button> " +
+      "<button type='button' onclick='addLevel(" + world + "," + key + ")' title='Aufgabe darunter einf\xfcgen'>&#10010;</button>" +
     '</td>';
 }
 
@@ -225,6 +262,35 @@ function cancelEditLevel(world, key) {
   document.getElementById('level_row_' + world + '_' + key).innerHTML = levelRowContent(world, key);
 }
 
+function deleteLevel(world, key) {
+  levels[world]['levels'].splice(key, 1);
+  redrawWorldLevels(world);
+  }
+
+function redrawWorldLevels(world) {
+  var headerRow = $('#world_header_' + world);
+  // Remember whether items are currently visible
+  var firstItem = headerRow.nextUntil('.mainheader').filter('.item').first();
+  var wasVisible = firstItem.length === 0 || firstItem.is(':visible');
+  // Remove all existing level rows for this world
+  headerRow.nextUntil('.mainheader').remove();
+  // Generate and insert fresh rows
+  var r = [];
+  var j = -1;
+  j = fillLevelRows(r, j, world, levels[world]['levels'], 'world_');
+  headerRow.after(r.join(''));
+  // Restore collapsed state if needed
+  if (!wasVisible) {
+    headerRow.nextUntil('.mainheader').filter('.item').hide();
+  }
+}
+
+function addLevel(world, key) {
+  var copy = JSON.parse(JSON.stringify(levels[world]['levels'][key]));
+  levels[world]['levels'].splice(key + 1, 0, copy);
+  redrawWorldLevels(world);
+}
+
 function fillLevelRows(r, j, world, data, id) {
   r[++j] ='<tr class="header item"><td/><td>Aufgabentext</td><td>Voreingestellte Zeit</td><td>Soll Zeit</td><td>Aktionen</td>';
   for (var key=0, size=data.length; key<size; key++){
@@ -247,7 +313,7 @@ function fillTable(table, data) {
   var type = "";
   r[++j] = "<tr onclick='expandAll()' class='mainheader'><td class='collapse'><img src='images/expand.png' title='Alle Aufgaben anzeigen'></img></td><td colspan='2'>Name</td><td>Aufgaben</td><td>Aufgabentyp</td><td>Klasse</td></tr>";
   for (var key=0, size=data.length; key<size; key++){
-    r[++j] ="<tr class='mainheader' onclick='expandChapter(this)'><td>";
+    r[++j] ="<tr class='mainheader' id='world_header_" + key + "' onclick='expandChapter(this)'><td>";
     r[++j] = "<img src='images/expand.png' onclick='expandChapter(this)' title='Alle Aufgaben dieses Kapitels anzeigen'></img>";
     r[++j] = "</td><td colspan='2'>";
     r[++j] = data[key]['world'];
@@ -312,7 +378,66 @@ function createNewFile() {
   }
 
 function addWorld() {
-  alert("kommt noch");
+  // populate type select with unique types from current data
+  var typeSel = document.getElementById('addWorldType');
+  typeSel.innerHTML = '';
+  var seen = {};
+  for (var i = 0; i < levels.length; i++) {
+    var t = levels[i]['type'];
+    if (t && !seen[t]) {
+      seen[t] = true;
+      var tOpt = document.createElement('option');
+      tOpt.value = t;
+      tOpt.textContent = t;
+      typeSel.appendChild(tOpt);
+    }
+  }
+  // populate position select
+  var posSel = document.getElementById('addWorldPosition');
+  posSel.innerHTML = '<option value="-1">Am Anfang</option>';
+  for (var j = 0; j < levels.length; j++) {
+    var pOpt = document.createElement('option');
+    pOpt.value = j;
+    pOpt.textContent = 'Nach: ' + levels[j]['world'];
+    if (j === levels.length - 1) pOpt.selected = true;
+    posSel.appendChild(pOpt);
+  }
+  // reset other fields
+  document.getElementById('addWorldName').value = '';
+  [1,2,3,4].forEach(function(k) {
+    document.getElementById('addWorldKlasse' + k).checked = false;
+  });
+  document.getElementById('addWorldDialog').classList.add('open');
+  }
+
+function cancelAddWorld() {
+  document.getElementById('addWorldDialog').classList.remove('open');
+  }
+
+function saveAddWorld() {
+  var name = document.getElementById('addWorldName').value.trim();
+  var type = document.getElementById('addWorldType').value;
+  var insertAfter = parseInt(document.getElementById('addWorldPosition').value, 10);
+  if (!name) {
+    alert('Bitte einen Namen eingeben.');
+    return;
+  }
+  var klasse = [];
+  [1,2,3,4].forEach(function(k) {
+    if (document.getElementById('addWorldKlasse' + k).checked) klasse.push(k);
+  });
+  var newWorld = {
+    world: name,
+    klasse: klasse,
+    type: type,
+    levels: [
+      { label: '', startHour: 0, startMinute: 0, zielHour: '0', zielMinute: '00' }
+    ]
+  };
+  levels.splice(insertAfter + 1, 0, newWorld);
+  cancelAddWorld();
+  fillTable(allWorlds, levels);
+  collapseAll($('#AllWorlds'));
   }
 
 function saveData() {

@@ -7,7 +7,7 @@ var levels = [
     "type": "Zeiger einstellen",
     "levels": [
       {
-        "label": "Stell die Uhr auf zwei Uhr alert(\"JS inspection\");",
+        "label": "Stell die Uhr in der Test Klasse auf zwei Uhr ",
         "startHour": 10,
         "startMinute": 0,
         "zielHour": 2,
@@ -928,6 +928,23 @@ var levels = [
         "startMinute": 33,
         "zielHour": "0",
         "zielMinute": "27"
+      }
+    ]
+  },
+  {
+    "world": "test mit leerzeichen",
+    "klasse": [
+      1,
+      3
+    ],
+    "type": "Zeiger einstellen",
+    "levels": [
+      {
+        "label": "Stell die Uhr auf zwei Uhr",
+        "startHour": 0,
+        "startMinute": 0,
+        "zielHour": 2,
+        "zielMinute": 0
       }
     ]
   }
