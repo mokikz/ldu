@@ -49,7 +49,56 @@ table {
     background-size: 5em;
     padding-left: 5em;
 
-  }  
+  }
+
+#newFileDialog {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+
+#newFileDialog.open {
+  display: flex;
+}
+
+#newFileDialogBox {
+  background: #fff;
+  border-radius: 8px;
+  padding: 1.5em 2em;
+  min-width: 320px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+
+#newFileDialogBox h2 {
+  margin-top: 0;
+}
+
+#newFileDialogBox label {
+  display: block;
+  margin-top: 0.8em;
+  font-weight: bold;
+}
+
+#newFileDialogBox input,
+#newFileDialogBox select {
+  display: block;
+  width: 100%;
+  margin-top: 0.3em;
+  font-size: 1em;
+  padding: 0.2em;
+  box-sizing: border-box;
+}
+
+#newFileDialogBox .dialogButtons {
+  margin-top: 1.2em;
+  display: flex;
+  gap: 0.5em;
+  justify-content: flex-end;
+}
     </style>
 <title>Lern die Uhr - Aufgaben anpassen</title>
 <script src="/scripts/jquery-1.11.2.min.js"></script>
@@ -65,21 +114,64 @@ var isEdge = !isIE && !!window.StyleMedia;
 </head>
 <body onload="initialize()">
 <header>
-<div class='headline'><h1>Lern die Uhr - Aufgaben bearbeiten</h1><button type='button' onclick='addWorld()'>Aufgabenblock hinzufügen</button><button type='button' onclick='saveData()'>Aufgaben am Server speichern</button></div>
+<div class='headline'>
+  <h1>Lern die Uhr - Aufgaben bearbeiten</h1>
+  <label for='dataFilePicker'>Datei: </label>
+  <select id='dataFilePicker' onchange='switchDataFile(this.value)'></select>
+  <button type='button' onclick='showNewFileDialog()'>Neue Datendatei anlegen</button>
+  <button type='button' onclick='addWorld()'>Aufgabenblock hinzufügen</button>
+  <button type='button' onclick='saveData()'>Aufgaben am Server speichern</button>
+</div>
 </header>
+<div id="newFileDialog">
+  <div id="newFileDialogBox">
+    <h2>Neue Datendatei anlegen</h2>
+    <label for="newFileName">Dateiname (ohne .js)</label>
+    <input type="text" id="newFileName" placeholder="z.B. klasse3" />
+    <label for="newFileTemplate">Vorlage</label>
+    <select id="newFileTemplate"></select>
+    <div class="dialogButtons">
+      <button type="button" onclick="cancelNewFile()">Abbrechen</button>
+      <button type="button" onclick="createNewFile()">Speichern</button>
+    </div>
+  </div>
+</div>
 <div>
 <table id="AllWorlds">
 </table>
 </div>
 <script type="application/x-javascript">
+function getCookie(name) {
+  var match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+function switchDataFile(name) {
+  document.cookie = 'klasse=' + encodeURIComponent(name) + '; path=/';
+  location.reload();
+}
+
+function loadDataFileList() {
+  var current = getCookie('klasse') || 'data';
+  fetch('/api/data-files')
+    .then(function(r) { return r.json(); })
+    .then(function(files) {
+      var select = document.getElementById('dataFilePicker');
+      files.forEach(function(name) {
+        var opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        if (name === current) opt.selected = true;
+        select.appendChild(opt);
+      });
+    });
+}
+
 function initialize() {
   allWorlds = document.getElementById('AllWorlds');
-  //fill worlds into table
+  loadDataFileList();
   fillTable(allWorlds, levels);
   collapseAll($('#AllWorlds'));
-  //$('.mainheader').click(function(){
-    //$(this).nextUntil('tr.header').slideToggle(1000);
-  //});
   }
 
 /*
@@ -88,20 +180,57 @@ function initialize() {
          "levels": [
            {"label": "Stell die Uhr eine viertel Stunde zurück", startHour: 11, startMinute: 15, zielHour: "11", zielMinute: "00"},
 */
+function levelRowContent(world, key) {
+  var data = levels[world]['levels'][key];
+  return '<td></td>' +
+    '<td>' + data['label'] + '</td>' +
+    '<td>' + data['startHour'] + ':' + data['startMinute'] + '</td>' +
+    '<td>' + data['zielHour'] + ':' + data['zielMinute'] + '</td>' +
+    '<td>' +
+      "<img src='images/delete.png' onclick='deleteLevel(" + world + "," + key + ")' title='Aufgabe L\xf6schen'> " +
+      "<button type='button' onclick='editLevel(" + world + "," + key + ")' title='Aufgabe bearbeiten'>&#9998;</button>" +
+    '</td>';
+}
+
+function editLevel(world, key) {
+  var data = levels[world]['levels'][key];
+  var row = document.getElementById('level_row_' + world + '_' + key);
+  row.innerHTML =
+    '<td></td>' +
+    '<td><input id="el_label" type="text" style="width:100%" value="' + data['label'].replace(/"/g, '&quot;') + '"></td>' +
+    '<td>' +
+      '<input id="el_startHour" type="number" min="0" max="23" style="width:3.5em" value="' + data['startHour'] + '">:' +
+      '<input id="el_startMinute" type="number" min="0" max="59" style="width:3.5em" value="' + data['startMinute'] + '">' +
+    '</td>' +
+    '<td>' +
+      '<input id="el_zielHour" type="number" min="0" max="23" style="width:3.5em" value="' + data['zielHour'] + '">:' +
+      '<input id="el_zielMinute" type="number" min="0" max="59" style="width:3.5em" value="' + data['zielMinute'] + '">' +
+    '</td>' +
+    '<td>' +
+      "<button type='button' onclick='saveLevel(" + world + "," + key + ")'>&#10003; Speichern</button> " +
+      "<button type='button' onclick='cancelEditLevel(" + world + "," + key + ")'>Abbrechen</button>" +
+    '</td>';
+}
+
+function saveLevel(world, key) {
+  levels[world]['levels'][key]['label']       = document.getElementById('el_label').value;
+  levels[world]['levels'][key]['startHour']   = parseInt(document.getElementById('el_startHour').value, 10);
+  levels[world]['levels'][key]['startMinute'] = parseInt(document.getElementById('el_startMinute').value, 10);
+  levels[world]['levels'][key]['zielHour']    = parseInt(document.getElementById('el_zielHour').value, 10);
+  levels[world]['levels'][key]['zielMinute']  = parseInt(document.getElementById('el_zielMinute').value, 10);
+  document.getElementById('level_row_' + world + '_' + key).innerHTML = levelRowContent(world, key);
+}
+
+function cancelEditLevel(world, key) {
+  document.getElementById('level_row_' + world + '_' + key).innerHTML = levelRowContent(world, key);
+}
+
 function fillLevelRows(r, j, world, data, id) {
   r[++j] ='<tr class="header item"><td/><td>Aufgabentext</td><td>Voreingestellte Zeit</td><td>Soll Zeit</td><td>Aktionen</td>';
-  var minute = '00';
   for (var key=0, size=data.length; key<size; key++){
-    r[++j] ='<tr class="item"><td>';
-    r[++j] = '</td><td>';
-    r[++j] = data[key]['label'];
-    r[++j] = '</td><td>';
-    r[++j] = data[key]['startHour'] + ':' + data[key]['startMinute']
-    r[++j] = '</td><td>';
-    r[++j] = data[key]['zielHour'] + ':' + data[key]['zielMinute']
-    r[++j] = '</td><td>';
-    r[++j] = "<img src='images/delete.png' onclick='deleteLevel(world, key)' title='Aufgabe Löschen'></img>";
-    r[++j] = '</td></tr>';
+    r[++j] = '<tr class="item" id="level_row_' + world + '_' + key + '">';
+    r[++j] = levelRowContent(world, key);
+    r[++j] = '</tr>';
     }
   return j;
   }
@@ -137,8 +266,70 @@ function fillTable(table, data) {
   $('#AllWorlds').html(r.join('')); 
   }
 
+function showNewFileDialog() {
+  fetch('/api/data-files')
+    .then(function(r) { return r.json(); })
+    .then(function(files) {
+      var sel = document.getElementById('newFileTemplate');
+      sel.innerHTML = '';
+      files.forEach(function(name) {
+        var opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        sel.appendChild(opt);
+      });
+      document.getElementById('newFileName').value = '';
+      document.getElementById('newFileDialog').classList.add('open');
+    });
+  }
+
+function cancelNewFile() {
+  document.getElementById('newFileDialog').classList.remove('open');
+  }
+
+function createNewFile() {
+  var name = document.getElementById('newFileName').value.trim();
+  var template = document.getElementById('newFileTemplate').value;
+  if (!name) {
+    alert('Bitte einen Dateinamen eingeben.');
+    return;
+  }
+  fetch('/api/create-data-file', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: name, template: template })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(result) {
+    if (result.ok) {
+      cancelNewFile();
+      switchDataFile(name);
+    } else {
+      alert('Fehler: ' + (result.error || 'Unbekannter Fehler'));
+    }
+  })
+  .catch(function(e) { alert('Fehler: ' + e); });
+  }
+
 function addWorld() {
   alert("kommt noch");
+  }
+
+function saveData() {
+  fetch('/api/save-data', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(levels)
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(result) {
+    if (result.ok) {
+      alert('Gespeichert!');
+    } else {
+      alert('Fehler: ' + (result.error || 'Unbekannter Fehler'));
+    }
+  })
+  .catch(function(e) { alert('Fehler beim Speichern: ' + e); });
   }
 
 function expandAll(element) {

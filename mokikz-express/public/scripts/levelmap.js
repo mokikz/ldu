@@ -5,7 +5,7 @@ var LernDieUhr = window.LernDieUhr || {};
 
 LernDieUhr.LevelMap = (function () {
   var canvas, ctx, model;
-  var dragonImg, bgImg;
+  var dragonImg, walkImg, bgImg;
   var scrollY = 0;
   var targetScrollY = 0;
   var animFrameId = null;
@@ -17,9 +17,24 @@ LernDieUhr.LevelMap = (function () {
   var canContinue = false;
 
   var NODE_RADIUS = 22;
-  var DRAGON_SIZE = 56;
+  var DRAGON_SIZE = 60;
   var DOOR_W = 64;
   var DOOR_H = 88;
+
+  // Sprite animation state (tutorial algorithm: curFrame = ++curFrame % frameCount)
+  var WALK_FRAME_COUNT = 4;    // simulated frames: stride right, rise, stride left, fall
+  var WALK_INTERVAL   = 130;   // ms per frame (like setInterval in the tutorial)
+  var walkCurFrame    = 0;
+  var walkLastTime    = 0;
+
+  // Per-frame walk offsets applied to the single sprite image
+  // [bobY, flip] — flip mirrors the image to simulate opposite stride
+  var WALK_FRAMES = [
+    {bob:  0, flip: false},
+    {bob: -5, flip: false},
+    {bob:  0, flip: true },
+    {bob: -5, flip: true }
+  ];
 
   // Level node positions in original image pixel coordinates (index 0 = first level)
   var NODE_POSITIONS = [
@@ -168,14 +183,39 @@ LernDieUhr.LevelMap = (function () {
     ctx.fill();
   }
 
-  function drawDragon(x, y) {
+  function updateWalkFrame(timestamp) {
+    // Tutorial algorithm: advance curFrame when interval has elapsed
+    if (timestamp - walkLastTime >= WALK_INTERVAL) {
+      walkCurFrame = (walkCurFrame + 1) % WALK_FRAME_COUNT;
+      walkLastTime = timestamp;
+    }
+  }
+
+  function drawDragon(x, y, timestamp) {
+    // Glow ring behind dragon
     ctx.beginPath();
     ctx.arc(x, y, NODE_RADIUS + 6, 0, Math.PI * 2);
     ctx.strokeStyle = 'rgba(100,200,255,0.7)';
     ctx.lineWidth = 3;
     ctx.stroke();
-    var imgY = y - DRAGON_SIZE - NODE_RADIUS + 8;
-    ctx.drawImage(dragonImg, x - DRAGON_SIZE / 2, imgY, DRAGON_SIZE, DRAGON_SIZE);
+
+    updateWalkFrame(timestamp || 0);
+
+    var frame = WALK_FRAMES[walkCurFrame];
+    var img = (walkImg && walkImg.complete && walkImg.naturalWidth > 0) ? walkImg : dragonImg;
+
+    // Position: sit above the node circle
+    var imgX = x - DRAGON_SIZE / 2;
+    var imgY = y - DRAGON_SIZE - NODE_RADIUS + 8 + frame.bob;
+
+    ctx.save();
+    if (frame.flip) {
+      // Mirror horizontally around the dragon's center x (tutorial: srcX selects column; here we flip)
+      ctx.translate(x * 2, 0);
+      ctx.scale(-1, 1);
+    }
+    ctx.drawImage(img, imgX, imgY, DRAGON_SIZE, DRAGON_SIZE);
+    ctx.restore();
   }
 
   function drawDoor(x, y, angle) {
@@ -275,7 +315,7 @@ LernDieUhr.LevelMap = (function () {
 
   // --- main render ---
 
-  function render() {
+  function render(timestamp) {
     // eslint-disable-next-line no-undef
     var worldData = levels[displayWorldIndex];
     var numLevels = worldData.levels.length;
@@ -307,7 +347,7 @@ LernDieUhr.LevelMap = (function () {
         drawGoldStar(p.x, p.y, NODE_RADIUS);
       } else if (i === completedIndex) {
         if (!preGame) drawGoldStar(p.x, p.y, NODE_RADIUS); // no star before playing
-        drawDragon(p.x, p.y);
+        drawDragon(p.x, p.y, timestamp);
       } else {
         drawLockedNode(p.x, p.y);
       }
@@ -356,6 +396,8 @@ LernDieUhr.LevelMap = (function () {
     ctx = canvas.getContext('2d');
     dragonImg = new Image();
     dragonImg.src = '/images/mokikz_256.png';
+    walkImg = new Image();
+    walkImg.src = '/images/mokikz_walking_lr.png';
     bgImg = new Image();
     bgImg.src = '/images/background_levelmap.jpg';
   };
