@@ -4,7 +4,7 @@ const router = express.Router();
 
 /* GET home page. */
 router.get('/', (req, res) => {
-  res.redirect('/mainframe.html');
+  res.redirect('/gate.html');
 });
 
 module.exports = router;

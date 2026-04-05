@@ -1,3 +1,9 @@
+var metadata = {
+  "school": "Grundschule Musterstadt",
+  "teacher": "Frau Muster",
+  "className": "1c",
+  "avatar": "avatar_Grundschule Musterstadt.png"
+};
 var levels = [
   {
     "world": "Start",
@@ -25,13 +31,6 @@ var levels = [
         "startMinute": 0,
         "zielHour": "10",
         "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf 0 Uhr",
-        "startHour": 12,
-        "startMinute": 0,
-        "zielHour": "12",
-        "zielMinute": "00"
       }
     ]
   },
@@ -42,149 +41,6 @@ var levels = [
     ],
     "type": "Zeiger einstellen",
     "levels": [
-      {
-        "label": "Stell die Uhr auf ein Uhr",
-        "startHour": 10,
-        "startMinute": 0,
-        "zielHour": "01",
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf 3:00Uhr",
-        "startHour": 12,
-        "zielHour": 3,
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf 10:00 Uhr",
-        "startHour": 6,
-        "startMinute": 0,
-        "zielHour": "10",
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf zwei Uhr",
-        "startHour": 12,
-        "startMinute": 0,
-        "zielHour": "02",
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf 4:00Uhr",
-        "startMinute": 0,
-        "zielHour": 4,
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf 7:00 Uhr",
-        "startHour": 6,
-        "startMinute": 0,
-        "zielHour": "07",
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf fünf Uhr",
-        "startHour": 11,
-        "startMinute": 0,
-        "zielHour": "05",
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf 9:00 Uhr",
-        "startHour": 4,
-        "startMinute": 0,
-        "zielHour": "09",
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf 20:00 Uhr",
-        "startHour": 7,
-        "startMinute": 0,
-        "zielHour": "08",
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf 6:00 Uhr",
-        "startHour": 5,
-        "startMinute": 0,
-        "zielHour": "06",
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf elf Uhr",
-        "startHour": 12,
-        "startMinute": 0,
-        "zielHour": "11",
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf 12 Uhr",
-        "startHour": 10,
-        "startMinute": 0,
-        "zielHour": "12",
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf dreizehn Uhr",
-        "startHour": 10,
-        "startMinute": 0,
-        "zielHour": "01",
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf dreiundzwanzig Uhr",
-        "startHour": 12,
-        "startMinute": "00",
-        "zielHour": "11",
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf 14 Uhr",
-        "startHour": 12,
-        "startMinute": 0,
-        "zielHour": "02",
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf 15:00Uhr",
-        "startHour": 12,
-        "zielHour": 3,
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf 21:00 Uhr",
-        "startHour": 4,
-        "startMinute": 0,
-        "zielHour": "09",
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf 16:00Uhr",
-        "startMinute": 0,
-        "zielHour": 4,
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf achtzehn Uhr",
-        "startHour": 5,
-        "startMinute": 0,
-        "zielHour": "06",
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf 8:00 Uhr",
-        "startHour": 3,
-        "startMinute": 0,
-        "zielHour": "08",
-        "zielMinute": "00"
-      },
-      {
-        "label": "Stell die Uhr auf 17:00 Uhr",
-        "startHour": 11,
-        "startMinute": 0,
-        "zielHour": "05",
-        "zielMinute": "00"
-      },
       {
         "label": "Stell die Uhr auf 22:00 Uhr",
         "startHour": 6,

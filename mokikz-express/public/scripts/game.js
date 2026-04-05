@@ -153,28 +153,8 @@ LernDieUhr.Game = (function () {
   };
 
   Game.prototype.getNextWorld = function (currentWorld) {
-    const klasse = model.getValue('Klasse');
-    const numOfWorlds = levels.length;
-    let nextWorld = currentWorld;
-    let nextKlasse;
-    let found = false;
-    let nextWorldData;
-    do {
-      nextWorld = nextWorld + 1;
-      nextWorldData = levels[nextWorld];
-      if (nextWorldData) {
-        nextKlasse = nextWorldData['klasse'];
-        if ($.inArray(klasse, nextKlasse) > -1) {
-          found = true;
-        }
-      }
-      
-    } while (found == false && nextWorld <= numOfWorlds);
-    //if (found == false ){
-      //be sure to set next world behind last world to know when to finish 
-    //  nextWorld = nextWorld + 1;
-    //}
-    return nextWorld;
+    // All worlds in the data file are always shown — no class filtering.
+    return currentWorld + 1;
   };
 
   Game.prototype.loadLevel = function (bLoadCurrentLevel) {
@@ -208,7 +188,7 @@ LernDieUhr.Game = (function () {
         levelsOfWorld = levels[currentWorld]['levels'];
       }
     }
-else if (currentLevel >= levelsOfWorld.length - 1) {
+    else if (currentLevel >= levelsOfWorld.length - 1) {
       // user quit before starting new world, take care
       currentWorld += 1;
       if (currentWorld >= numOfWorlds) {

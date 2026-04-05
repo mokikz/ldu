@@ -42,6 +42,30 @@ table {
   border-collapse: collapse;
   }
 
+#metadataPanel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8em 1.5em;
+  padding: 0.6em 1em;
+  background: #f5f5f5;
+  border-bottom: 1px solid #ccc;
+  font-family: sans-serif;
+  font-size: 0.95em;
+}
+
+#metadataPanel label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  font-weight: bold;
+}
+
+#metadataPanel input {
+  font-size: 1em;
+  padding: 0.2em 0.4em;
+  width: 18em;
+}
+
 .headline {
     background-image: url(images/mokikz_256.png);
     background-repeat:no-repeat;
@@ -136,9 +160,51 @@ var isEdge = !isIE && !!window.StyleMedia;
   <button type='button' onclick='saveData()'>Aufgaben am Server speichern</button>
 </div>
 </header>
+<div id="metadataPanel">
+  <label>Schule<input type="text" id="meta_school" placeholder="Name der Schule" /></label>
+  <label>Lehrer/in<input type="text" id="meta_teacher" placeholder="Name des Lehrers / der Lehrerin" /></label>
+  <label>Klasse<input type="text" id="meta_className" placeholder="Bezeichnung der Klasse" /></label>
+  <div style="display:flex;flex-direction:column;gap:0.2em;">
+    <span style="font-weight:bold">Avatar-Bild</span>
+    <div style="display:flex;gap:0.6em;align-items:center;">
+      <img id="meta_avatar_preview" src="" alt="" width="50" height="50"
+           style="width:50px;height:50px;image-rendering:pixelated;border:1px solid #ccc;display:none;" />
+      <input type="hidden" id="meta_avatar" />
+      <button type="button" onclick="openAvatarGenerator()">&#9881; Generieren</button>
+    </div>
+  </div>
+</div>
+
+<div id="avatarDialog" class="modalOverlay">
+  <div class="modalBox" style="text-align:center;min-width:0;">
+    <h2>Avatar generieren</h2>
+    <canvas id="avatarPreviewCanvas" width="100" height="100"
+      style="width:200px;height:200px;image-rendering:pixelated;border:1px solid #ccc;display:block;margin:0 auto;"></canvas>
+    <div class="dialogButtons" style="justify-content:center;margin-top:1em;">
+      <button type="button" onclick="regenerateAvatar()">Neu generieren</button>
+      <button type="button" onclick="cancelAvatarDialog()">Abbrechen</button>
+      <button type="button" onclick="applyAvatar()">&#10003; &Uuml;bernehmen</button>
+    </div>
+  </div>
+</div>
+
 <div id="newFileDialog" class="modalOverlay">
   <div class="modalBox">
     <h2>Neue Datendatei anlegen</h2>
+    <label for="nfd_school">Schule</label>
+    <input type="text" id="nfd_school" placeholder="Name der Schule" oninput="nfdUpdateFilename()" />
+    <label for="nfd_teacher">Lehrer/in</label>
+    <input type="text" id="nfd_teacher" placeholder="Name des Lehrers / der Lehrerin" />
+    <label for="nfd_className">Klasse</label>
+    <input type="text" id="nfd_className" placeholder="Bezeichnung der Klasse" oninput="nfdUpdateFilename()" />
+    <label>Avatar-Bild</label>
+    <div style="display:flex;gap:0.6em;align-items:center;margin-top:0.3em;">
+      <img id="nfd_avatar_preview" src="" alt="" width="50" height="50"
+           style="width:50px;height:50px;image-rendering:pixelated;border:1px solid #ccc;display:none;" />
+      <input type="hidden" id="nfd_avatar" />
+      <button type="button" onclick="openAvatarGeneratorForNewFile()">&#9881; Generieren</button>
+    </div>
+    <hr style="margin:1em 0;border:none;border-top:1px solid #ccc;" />
     <label for="newFileName">Dateiname (ohne .js)</label>
     <input type="text" id="newFileName" placeholder="z.B. klasse3" />
     <label for="newFileTemplate">Vorlage</label>
@@ -203,9 +269,39 @@ function loadDataFileList() {
     });
 }
 
+function setAvatarPreview(filename) {
+  var img = document.getElementById('meta_avatar_preview');
+  document.getElementById('meta_avatar').value = filename;
+  if (filename) {
+    img.src   = '/images/avatars/' + filename;
+    img.style.display = 'inline';
+  } else {
+    img.src   = '';
+    img.style.display = 'none';
+  }
+  }
+
+function loadMetadata() {
+  var m = (typeof metadata !== 'undefined' && metadata) ? metadata : {};
+  document.getElementById('meta_school').value    = m.school    || '';
+  document.getElementById('meta_teacher').value   = m.teacher   || '';
+  document.getElementById('meta_className').value = m.className || '';
+  setAvatarPreview(m.avatar || '');
+  }
+
+function readMetadata() {
+  return {
+    school:    document.getElementById('meta_school').value,
+    teacher:   document.getElementById('meta_teacher').value,
+    className: document.getElementById('meta_className').value,
+    avatar:    document.getElementById('meta_avatar').value
+  };
+  }
+
 function initialize() {
   allWorlds = document.getElementById('AllWorlds');
   loadDataFileList();
+  loadMetadata();
   fillTable(allWorlds, levels);
   collapseAll($('#AllWorlds'));
   }
@@ -332,6 +428,14 @@ function fillTable(table, data) {
   $('#AllWorlds').html(r.join('')); 
   }
 
+function nfdUpdateFilename() {
+  var school = document.getElementById('nfd_school').value.trim();
+  var cls    = document.getElementById('nfd_className').value.trim();
+  var raw    = [school, cls].filter(Boolean).join(' ');
+  var safe   = raw.replace(/[^a-zA-Z0-9_ -]/g, '').trim();
+  if (safe) document.getElementById('newFileName').value = safe;
+  }
+
 function showNewFileDialog() {
   fetch('/api/data-files')
     .then(function(r) { return r.json(); })
@@ -344,7 +448,12 @@ function showNewFileDialog() {
         opt.textContent = name;
         sel.appendChild(opt);
       });
-      document.getElementById('newFileName').value = '';
+      ['nfd_school','nfd_teacher','nfd_className','newFileName'].forEach(function(id) {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('nfd_avatar').value = '';
+      var img = document.getElementById('nfd_avatar_preview');
+      img.src = ''; img.style.display = 'none';
       document.getElementById('newFileDialog').classList.add('open');
     });
   }
@@ -360,10 +469,16 @@ function createNewFile() {
     alert('Bitte einen Dateinamen eingeben.');
     return;
   }
+  var meta = {
+    school:    document.getElementById('nfd_school').value,
+    teacher:   document.getElementById('nfd_teacher').value,
+    className: document.getElementById('nfd_className').value,
+    avatar:    document.getElementById('nfd_avatar').value
+  };
   fetch('/api/create-data-file', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: name, template: template })
+    body: JSON.stringify({ name: name, template: template, metadata: meta })
   })
   .then(function(r) { return r.json(); })
   .then(function(result) {
@@ -440,11 +555,150 @@ function saveAddWorld() {
   collapseAll($('#AllWorlds'));
   }
 
+// ---- Avatar generator ----
+var _avatarRng;
+
+function _strHash(str) {
+  var h = 0x811c9dc5;
+  for (var i = 0; i < str.length; i++) {
+    h = Math.imul(h ^ str.charCodeAt(i), 0x01000193) >>> 0;
+  }
+  return h || 0xDEADBEEF;
+  }
+
+function _makeRng(seed) {
+  var s = seed >>> 0;
+  return function() {
+    s ^= s << 13; s ^= s >> 17; s ^= s << 5;
+    return (s >>> 0) / 0x100000000;
+  };
+  }
+
+function _hsl(h, s, l) { return 'hsl('+h+','+s+'%,'+l+'%)'; }
+
+function _drawAvatar(canvas, rng) {
+  var ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, 100, 100);
+
+  // Background
+  var bgH = Math.floor(rng() * 360);
+  var bgS = 55 + Math.floor(rng() * 35);
+  var bgL = 55 + Math.floor(rng() * 20);
+  ctx.fillStyle = _hsl(bgH, bgS, bgL);
+  ctx.fillRect(0, 0, 100, 100);
+
+  // Shape (contrasting hue, darker)
+  var shH = (bgH + 150 + Math.floor(rng() * 60)) % 360;
+  var shS = 55 + Math.floor(rng() * 30);
+  var shL = 28 + Math.floor(rng() * 22);
+  ctx.fillStyle = _hsl(shH, shS, shL);
+  ctx.beginPath();
+  var shape = Math.floor(rng() * 3);
+  if (shape === 0) {           // circle
+    ctx.arc(50, 50, 32, 0, Math.PI * 2);
+  } else if (shape === 1) {    // triangle
+    ctx.moveTo(50, 12); ctx.lineTo(84, 78); ctx.lineTo(16, 78);
+    ctx.closePath();
+  } else {                     // diamond
+    ctx.moveTo(50, 13); ctx.lineTo(85, 50);
+    ctx.lineTo(50, 87); ctx.lineTo(15, 50);
+    ctx.closePath();
+  }
+  ctx.fill();
+
+  // Decoration (sun / moon / star) in a light contrasting colour
+  var dcH = (shH + 55 + Math.floor(rng() * 50)) % 360;
+  ctx.fillStyle   = _hsl(dcH, 85, 82);
+  ctx.strokeStyle = _hsl(dcH, 85, 82);
+  ctx.lineWidth   = 2;
+  var deco = Math.floor(rng() * 3);
+  if (deco === 0) {            // sun: disc + 8 rays
+    ctx.beginPath(); ctx.arc(50, 50, 8, 0, Math.PI * 2); ctx.fill();
+    for (var i = 0; i < 8; i++) {
+      var a = (i / 8) * Math.PI * 2 - Math.PI / 2;
+      ctx.beginPath();
+      ctx.moveTo(50 + Math.cos(a) * 12, 50 + Math.sin(a) * 12);
+      ctx.lineTo(50 + Math.cos(a) * 18, 50 + Math.sin(a) * 18);
+      ctx.stroke();
+    }
+  } else if (deco === 1) {     // moon: crescent
+    ctx.beginPath(); ctx.arc(50, 50, 13, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = _hsl(shH, shS, shL);  // cut out with shape colour
+    ctx.beginPath(); ctx.arc(56, 44, 11, 0, Math.PI * 2); ctx.fill();
+  } else {                     // star: 5-pointed
+    ctx.beginPath();
+    for (var j = 0; j < 10; j++) {
+      var r   = j % 2 === 0 ? 14 : 6;
+      var ang = (j * Math.PI / 5) - Math.PI / 2;
+      if (j === 0) ctx.moveTo(50 + r * Math.cos(ang), 50 + r * Math.sin(ang));
+      else         ctx.lineTo(50 + r * Math.cos(ang), 50 + r * Math.sin(ang));
+    }
+    ctx.closePath(); ctx.fill();
+  }
+  }
+
+var _avatarSchoolId   = 'meta_school';
+var _avatarClassId    = 'meta_className';
+var _avatarCallback   = null;   // function(filename) called after save
+
+function openAvatarGenerator(schoolInputId, classInputId, callback) {
+  _avatarSchoolId = schoolInputId || 'meta_school';
+  _avatarClassId  = classInputId  || 'meta_className';
+  _avatarCallback = callback || function(filename) { setAvatarPreview(filename); };
+  var school = document.getElementById(_avatarSchoolId).value.trim();
+  var seed   = school ? _strHash(school) : Math.floor(Math.random() * 0x100000000);
+  _avatarRng = _makeRng(seed);
+  _drawAvatar(document.getElementById('avatarPreviewCanvas'), _avatarRng);
+  document.getElementById('avatarDialog').classList.add('open');
+  }
+
+function openAvatarGeneratorForNewFile() {
+  openAvatarGenerator('nfd_school', 'nfd_className', function(filename) {
+    document.getElementById('nfd_avatar').value = filename;
+    var img = document.getElementById('nfd_avatar_preview');
+    img.src = '/images/avatars/' + filename;
+    img.style.display = 'inline';
+  });
+  }
+
+function regenerateAvatar() {
+  _avatarRng = _makeRng(Math.floor(Math.random() * 0x100000000));
+  _drawAvatar(document.getElementById('avatarPreviewCanvas'), _avatarRng);
+  }
+
+function cancelAvatarDialog() {
+  document.getElementById('avatarDialog').classList.remove('open');
+  }
+
+function applyAvatar() {
+  var school    = document.getElementById(_avatarSchoolId).value.trim();
+  var className = document.getElementById(_avatarClassId).value.trim();
+  var raw       = [school, className].filter(Boolean).join('_') || 'avatar';
+  var safeName  = raw.replace(/[^a-zA-Z0-9_\- ]/g, '').trim() || 'avatar';
+  var filename  = 'avatar_' + safeName + '.png';
+  var dataUrl   = document.getElementById('avatarPreviewCanvas').toDataURL('image/png');
+  fetch('/api/save-avatar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filename: filename, dataUrl: dataUrl })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(result) {
+    if (result.ok) {
+      _avatarCallback(result.filename);
+      cancelAvatarDialog();
+    } else {
+      alert('Fehler: ' + (result.error || 'Unbekannter Fehler'));
+    }
+  })
+  .catch(function(e) { alert('Fehler: ' + e); });
+  }
+
 function saveData() {
   fetch('/api/save-data', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(levels)
+    body: JSON.stringify({ levels: levels, metadata: readMetadata() })
   })
   .then(function(r) { return r.json(); })
   .then(function(result) {

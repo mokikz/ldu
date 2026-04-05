@@ -93,12 +93,6 @@ function playIntro (items) {
 function selectKlasseDialog() {
   game.hideDialog("ContinueGame");
   game.hideDialog("movie");
-  game.showDialog("SelectKlasse");
-}
-
-function selectKlasse(klasse) {
-  model.setValue("Klasse", klasse)
-  game.hideDialog("SelectKlasse");
   selectPlayer();
 }
 
@@ -196,24 +190,9 @@ function initialize() {
           <p class="zentriert">Weiterspielen</p>
         </div>
       </li>
-    </ul>
-  </div> <!-- id="ContinueGame" -->
-  <div id="SelectKlasse">
-    <h1>In welcher Klasse bist du?</h1>
-    <ul>
       <li>
-        <div onclick="selectKlasse(1)">
-          <p class="zentriert">1. Klasse</p>
-        </div>
-      </li>
-      <li>
-        <div onclick="selectKlasse(2)">
-          <p class="zentriert">2. Klasse</p>
-        </div>
-      </li>
-      <li>
-        <div onclick="selectKlasse(3)">
-          <p class="zentriert">3. Klasse</p>
+        <div onclick="window.location.href='/gate.html'">
+          <p class="zentriert">Klasse wechseln</p>
         </div>
       </li>
     </ul>

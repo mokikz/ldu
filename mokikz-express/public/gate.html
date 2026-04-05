@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link rel="apple-touch-icon" href="icons/app_60x60.png">
+  <link rel="apple-touch-icon" sizes="76x76"   href="icons/app_76x76.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="icons/app_120x120.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icons/app_152x152.png">
+  <link rel="shortcut icon" href="icons/favicon.ico" type="image/x-icon">
+  <title>Lern die Uhr</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background-image: url(images/wand.png);
+      background-size: cover;
+      background-repeat: no-repeat;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      width: 100%;
+      padding: 1em;
+      display: flex;
+      align-items: center;
+      gap: 1em;
+      background: rgba(0,0,0,0.35);
+    }
+
+    header img {
+      width: 3.5em;
+      height: 3.5em;
+    }
+
+    header h1 {
+      color: #fff;
+      font-size: 1.6em;
+      text-shadow: 1px 2px 4px rgba(0,0,0,0.7);
+    }
+
+    #cardGrid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5em;
+      justify-content: center;
+      padding: 2em 1em;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.88);
+      border-radius: 16px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+      padding: 1.2em 1.4em;
+      width: 180px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6em;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .card:hover, .card:active {
+      transform: scale(1.06);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+    }
+
+    .card img.avatar {
+      width: 100px;
+      height: 100px;
+      image-rendering: pixelated;
+      border-radius: 50%;
+      border: 3px solid #E3A20B;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+
+    .card .school {
+      font-size: 1em;
+      font-weight: bold;
+      text-align: center;
+      color: #333;
+      word-break: break-word;
+    }
+
+    .card .classname {
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #7B3F00;
+      text-align: center;
+    }
+
+    .card .teacher {
+      font-size: 0.82em;
+      color: #666;
+      text-align: center;
+    }
+
+    #noFiles {
+      color: #fff;
+      font-size: 1.2em;
+      margin-top: 3em;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="images/mokikz_256.png" alt="Mokikz" />
+    <h1>Lern die Uhr &ndash; Klasse w&auml;hlen</h1>
+  </header>
+
+  <div id="cardGrid"></div>
+  <p id="noFiles">Keine Datendateien gefunden.</p>
+
+  <script>
+    function selectFile(name) {
+      document.cookie = 'klasse=' + encodeURIComponent(name) + '; path=/';
+      window.location.href = '/mainframe.html';
+    }
+
+    fetch('/api/data-files-metadata')
+      .then(function(r) { return r.json(); })
+      .then(function(files) {
+        var grid = document.getElementById('cardGrid');
+        if (!files.length) {
+          document.getElementById('noFiles').style.display = 'block';
+          return;
+        }
+        files.forEach(function(f) {
+          var m = f.metadata || {};
+
+          var card = document.createElement('div');
+          card.className = 'card';
+          card.addEventListener('click', function() { selectFile(f.file); });
+
+          var img = document.createElement('img');
+          img.className = 'avatar';
+          img.alt = m.school || f.file;
+          img.src = m.avatar
+            ? '/images/avatars/' + m.avatar
+            : '/images/mokikz_256.png';
+          card.appendChild(img);
+
+          if (m.school) {
+            var school = document.createElement('div');
+            school.className = 'school';
+            school.textContent = m.school;
+            card.appendChild(school);
+          }
+
+          if (m.className) {
+            var cls = document.createElement('div');
+            cls.className = 'classname';
+            cls.textContent = m.className;
+            card.appendChild(cls);
+          }
+
+          if (m.teacher) {
+            var teacher = document.createElement('div');
+            teacher.className = 'teacher';
+            teacher.textContent = m.teacher;
+            card.appendChild(teacher);
+          }
+
+          if (!m.school && !m.className) {
+            var fallback = document.createElement('div');
+            fallback.className = 'school';
+            fallback.textContent = f.file;
+            card.appendChild(fallback);
+          }
+
+          grid.appendChild(card);
+        });
+      })
+      .catch(function() {
+        document.getElementById('noFiles').style.display = 'block';
+      });
+  </script>
+</body>
+</html>

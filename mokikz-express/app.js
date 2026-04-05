@@ -3,6 +3,7 @@ const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const vm = require('vm');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
@@ -47,7 +48,10 @@ app.post('/api/save-data', (req, res) => {
   }
   // JSON.stringify always produces valid JSON literals — no free-form JS can
   // be injected through req.body regardless of its content
-  const content = 'var levels = ' + JSON.stringify(req.body, null, 2) + ';\n';
+  const { levels, metadata } = req.body;
+  const content =
+    'var metadata = ' + JSON.stringify(metadata || {}, null, 2) + ';\n' +
+    'var levels = '   + JSON.stringify(levels,        null, 2) + ';\n';
   fs.writeFileSync(dataFile, content);
   res.json({ ok: true });
 });
@@ -70,8 +74,42 @@ app.post('/api/create-data-file', (req, res) => {
   if (fs.existsSync(newFile)) {
     return res.status(409).json({ error: `${name}.js existiert bereits` });
   }
-  fs.copyFileSync(templateFile, newFile);
+  // Execute the template in a sandbox to extract its levels array.
+  // Normalise const/let → var so vm exposes them on the sandbox object.
+  const raw = fs.readFileSync(templateFile, 'utf8');
+  const src = raw
+    .replace(/\b(const|let)\s+levels\b/g,   'var levels')
+    .replace(/\b(const|let)\s+metadata\b/g, 'var metadata');
+  const sandbox = {};
+  vm.createContext(sandbox);
+  try { vm.runInContext(src, sandbox); } catch (e) {
+    return res.status(500).json({ error: 'Vorlagendatei konnte nicht gelesen werden' });
+  }
+  const content =
+    'var metadata = ' + JSON.stringify(req.body.metadata || {}, null, 2) + ';\n' +
+    'var levels = '   + JSON.stringify(sandbox.levels   || [], null, 2) + ';\n';
+  fs.writeFileSync(newFile, content);
   res.json({ ok: true });
+});
+
+// save a generated avatar PNG into public/images/
+app.post('/api/save-avatar', (req, res) => {
+  const { filename, dataUrl } = req.body;
+  if (!filename || !/^[a-zA-Z0-9_ -]+\.png$/.test(filename)) {
+    return res.status(400).json({ error: 'Ungültiger Dateiname' });
+  }
+  if (!dataUrl || !dataUrl.startsWith('data:image/png;base64,')) {
+    return res.status(400).json({ error: 'Ungültiges Bildformat' });
+  }
+  const buffer = Buffer.from(dataUrl.replace('data:image/png;base64,', ''), 'base64');
+  if (buffer.length > 51200) {   // 100×100 PNG is well under 50 KB
+    return res.status(400).json({ error: 'Bild zu groß' });
+  }
+  const avatarDir = path.join(__dirname, 'public', 'images', 'avatars');
+  if (!fs.existsSync(avatarDir)) fs.mkdirSync(avatarDir, { recursive: true });
+  const imgFile = path.join(avatarDir, filename);
+  fs.writeFileSync(imgFile, buffer);
+  res.json({ ok: true, filename });
 });
 
 // list available data files
@@ -81,6 +119,25 @@ app.get('/api/data-files', (req, res) => {
     .filter(f => f.endsWith('.js'))
     .map(f => f.replace('.js', ''));
   res.json(files);
+});
+
+// list data files with their metadata
+app.get('/api/data-files-metadata', (req, res) => {
+  const dataDir = path.join(__dirname, 'public', 'data');
+  const result = fs.readdirSync(dataDir)
+    .filter(f => f.endsWith('.js'))
+    .map(f => {
+      const name = f.replace('.js', '');
+      const raw = fs.readFileSync(path.join(dataDir, f), 'utf8');
+      const src = raw
+        .replace(/\b(const|let)\s+levels\b/g,   'var levels')
+        .replace(/\b(const|let)\s+metadata\b/g, 'var metadata');
+      const sandbox = {};
+      vm.createContext(sandbox);
+      try { vm.runInContext(src, sandbox); } catch (e) { /* ignore parse errors */ }
+      return { file: name, metadata: sandbox.metadata || {} };
+    });
+  res.json(result);
 });
 
 // routes
