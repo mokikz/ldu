@@ -7,6 +7,10 @@ Wenn du sehen willst wie es aussieht, schau auf:
 
 https://lerndieuhr.mokikz.de/mainframe.html
 
+Zum bearbeiten der Aufgaben starte
+
+https://lerndieuhr.mokikz.de/edit.html
+
 Wenn du mehr wissen willst schau auf die Website:
 
 https://blog.mokikz.de
@@ -27,3 +31,15 @@ Wer sagt, dass lernen keinen Spass machen darf?
 * /ressources Vorlagen für die Grafiken im Spiel
 * /mokikz-express Hauptordner mir allen Dateien für das Spiel
 * /mokikz-express/public
+
+# Die App hosten
+
+## im lokalen Netz
+
+
+## Im Internet
+* HTTPS setzt die Umgebungsvariablen SSL_KEY_FILE und SSL_CERT_FILE voraus
+  SSL_KEY_FILE=/path/to/key.pem 
+  SSL_CERT_FILE=/path/to/cert.pem
+* In Produktions Umgebungen mit Reverst proxy via Traefik, wird TLS vom Proxy gemanagt.
+ Die SSL_* Variablen werden dann nicht benötigt

@@ -18,8 +18,18 @@ let klasse = 'data';
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
+// Trust reverse-proxy headers (X-Forwarded-Proto) so req.secure works correctly
+app.set('trust proxy', 1);
+
 //routes
 app.use(logger('dev'));
+
+// Redirect HTTP to HTTPS in production
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV !== 'production' || req.secure) return next();
+  res.redirect(301, 'https://' + req.headers.host + req.url);
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

@@ -15,7 +15,17 @@ const https = require('https');
  */
 
 const server = http.createServer(app);
-const httpsServer = https.createServer(app);
+
+// Load TLS cert/key from file paths in environment variables (optional)
+let httpsServer;
+if (process.env.SSL_KEY_FILE && process.env.SSL_CERT_FILE) {
+  const fs = require('fs');
+  const tlsOptions = {
+    key:  fs.readFileSync(process.env.SSL_KEY_FILE),
+    cert: fs.readFileSync(process.env.SSL_CERT_FILE),
+  };
+  httpsServer = https.createServer(tlsOptions, app);
+}
 
 /**
  * Normalize a port into a number, string, or false.
@@ -90,6 +100,8 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
-httpsServer.listen(httpsPort);
-httpsServer.on('error', onError);
-httpsServer.on('listening', onListening);
+if (httpsServer) {
+  httpsServer.listen(httpsPort);
+  httpsServer.on('error', onError);
+  httpsServer.on('listening', onListening);
+}
