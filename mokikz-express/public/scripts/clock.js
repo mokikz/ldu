@@ -301,6 +301,7 @@ function showTime(mouseX, mouseY) {
       centerY = Math.floor(height- size/2);
 
       context = canvas.getContext('2d');
+      context.setTransform(1, 0, 0, 1, 0, 0);
       context.translate(centerX, centerY);
       console.log("context = " + context);
       draw();
@@ -474,6 +475,7 @@ function showTime(mouseX, mouseY) {
       centerX = this.centerX;
       this.centerY = _centerY;
       centerY = this.centerY;
+      this.context.setTransform(1, 0, 0, 1, 0, 0);
       this.context.translate(centerX, centerY);
 
       var now=new Date();
