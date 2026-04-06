@@ -34,6 +34,18 @@
   <link rel="stylesheet" media="all and (orientation:portrait)" href="ldu-portrait.css" />
   <link rel="stylesheet" media="all and (orientation:landscape)" href="ldu-landscape.css" />
   <script type="application/x-javascript">
+// Keep --vh in sync with the actual visible viewport height so that all
+// calc(var(--vh, 1vh) * N) expressions in the stylesheets stay within the
+// area Safari actually shows (100vh includes browser chrome on iOS).
+(function () {
+  function setVh() {
+    document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
+  }
+  setVh();
+  window.addEventListener('resize', setVh);
+  window.addEventListener('orientationchange', setVh);
+}());
+
 // Internet Explorer 6-11
 var isIE = /*@cc_on!@*/false || !!document.documentMode;
 
