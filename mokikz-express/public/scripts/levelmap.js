@@ -16,6 +16,16 @@ LernDieUhr.LevelMap = (function () {
   var doorAnimDone = false;
   var canContinue = false;
 
+  // --- drag-scroll state ---
+  var isDragging = false;
+  var dragStartY = 0;
+  var dragScrollAtStart = 0;
+  var dragMovedPx = 0;
+  var hasDragged = false; // true once the finger moved ≥ 8 px — used for tap detection
+  var autoScrolling = false; // true during the initial scroll-to-level animation on show()
+  var maxScrollY = 0;       // updated each render frame, read by drag handlers
+  var currentNumTiles = 1;  // updated each render frame, used by nodeCanvas/drawBackground
+
   var NODE_RADIUS = 22;
   var DRAGON_SIZE = 60;
   var DOOR_W = 64;
@@ -71,22 +81,48 @@ LernDieUhr.LevelMap = (function () {
     return canvas.height;
   }
 
+  // Returns the virtual-canvas position of global node index i.
+  // Nodes are laid out across repeating tiles of the background image.
+  // Odd-numbered tiles are mirrored horizontally so the path flows naturally
+  // from the right-side exit of one tile into the left-side entry of the next.
   function nodeCanvas(i) {
     var s = getScale();
-    return {x: NODE_POSITIONS[i].x * s, y: NODE_POSITIONS[i].y * s};
+    var tileH = getVirtualHeight();
+    var totalH = tileH * currentNumTiles;
+    var perTile = NODE_POSITIONS.length;
+    var tile = Math.floor(i / perTile);
+    var pos  = NODE_POSITIONS[i % perTile];
+    var x = (tile % 2 === 0)
+      ? pos.x * s
+      : (bgImg.naturalWidth - pos.x) * s;
+    // Tile 0 sits at the bottom of totalH; tile t's top edge is at totalH-(t+1)*tileH.
+    var y = totalH - (tile + 1) * tileH + pos.y * s;
+    return {x: x, y: y};
+  }
+
+  function getTotalVirtualHeight(numNodes) {
+    var numTiles = Math.ceil(numNodes / NODE_POSITIONS.length) || 1;
+    return getVirtualHeight() * numTiles;
   }
 
   // --- drawing ---
 
-  function drawBackground(virtualHeight) {
-    if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
-      ctx.drawImage(bgImg, 0, 0, canvas.width, virtualHeight);
-    } else {
-      var grad = ctx.createLinearGradient(0, 0, 0, virtualHeight);
-      grad.addColorStop(0, '#0a0520');
-      grad.addColorStop(1, '#1a0a3a');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, canvas.width, virtualHeight);
+  function drawBackground(numTiles) {
+    var tileH = getVirtualHeight();
+    var totalH = tileH * numTiles;
+    for (var t = 0; t < numTiles; t++) {
+      // Tile 0 occupies the BOTTOM of the virtual canvas; higher tiles stack upward.
+      // yTop of tile t = totalH - (t+1)*tileH
+      var yTop = totalH - (t + 1) * tileH;
+      if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
+        ctx.drawImage(bgImg, 0, yTop, canvas.width, tileH);
+      } else {
+        var grad = ctx.createLinearGradient(0, yTop, 0, yTop + tileH);
+        grad.addColorStop(0, '#0a0520');
+        grad.addColorStop(1, '#1a0a3a');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, yTop, canvas.width, tileH);
+      }
     }
   }
 
@@ -162,7 +198,7 @@ LernDieUhr.LevelMap = (function () {
     ctx.stroke();
   }
 
-  function drawLockedNode(x, y) {
+  function drawLockedNode(x, y, label) {
     ctx.beginPath();
     ctx.arc(x, y, NODE_RADIUS, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(30,20,60,0.7)';
@@ -170,17 +206,11 @@ LernDieUhr.LevelMap = (function () {
     ctx.strokeStyle = '#555577';
     ctx.lineWidth = 2;
     ctx.stroke();
-    ctx.strokeStyle = '#888';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(x, y - 5, 7, Math.PI, 0);
-    ctx.stroke();
+    ctx.font = 'bold ' + (NODE_RADIUS * 0.9 | 0) + 'px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
     ctx.fillStyle = '#888';
-    ctx.fillRect(x - 7, y - 5, 14, 12);
-    ctx.fillStyle = '#555';
-    ctx.beginPath();
-    ctx.arc(x, y + 1, 3, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillText(String(label), x, y);
   }
 
   function updateWalkFrame(timestamp) {
@@ -313,31 +343,116 @@ LernDieUhr.LevelMap = (function () {
     ctx.fillText(text, x, y);
   }
 
+  // --- drag scroll ---
+
+  function pointerClientY(e) {
+    return e.touches ? e.touches[0].clientY : e.clientY;
+  }
+
+  function onDragStart(e) {
+    autoScrolling = false; // user takes control — cancel the intro animation
+    isDragging = true;
+    hasDragged = false;
+    dragMovedPx = 0;
+    dragStartY = pointerClientY(e);
+    dragScrollAtStart = scrollY;
+  }
+
+  function onDragMove(e) {
+    if (!isDragging) return;
+    // dragMovedPx > 0 means finger moved up → scroll toward higher levels (increase scrollY)
+    dragMovedPx = dragStartY - pointerClientY(e);
+    if (Math.abs(dragMovedPx) >= 8) hasDragged = true;
+    var next = dragScrollAtStart - dragMovedPx;
+    if (next <= 0) {
+      // Hit the bottom boundary — clamp and re-anchor so reversing immediately works.
+      scrollY = 0;
+      targetScrollY = 0;
+      dragStartY = pointerClientY(e);
+      dragScrollAtStart = 0;
+      dragMovedPx = 0;
+    } else if (next >= maxScrollY) {
+      // Hit the top boundary — clamp and re-anchor.
+      scrollY = maxScrollY;
+      targetScrollY = maxScrollY;
+      dragStartY = pointerClientY(e);
+      dragScrollAtStart = maxScrollY;
+      dragMovedPx = 0;
+    } else {
+      scrollY = next;
+      targetScrollY = scrollY;
+    }
+    e.preventDefault();
+  }
+
+  function onDragEnd(e) {
+    isDragging = false;
+    // Treat as a tap (continue) only when the finger barely moved
+    if (!hasDragged) {
+      handleContinue(e);
+    }
+  }
+
+  function drawScrollHint() {
+    // Top-edge gradient + arrow hint shown when there are higher levels to scroll to
+    if (maxScrollY <= 0 || scrollY >= maxScrollY - 5) return;
+    var grad = ctx.createLinearGradient(0, 0, 0, 48);
+    grad.addColorStop(0, 'rgba(0,0,0,0.55)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, 48);
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillText('▲  nächste Welt', canvas.width / 2, 6);
+  }
+
   // --- main render ---
 
   function render(timestamp) {
+    // --- Global node count across all worlds ---
+    // eslint-disable-next-line no-undef
+    var totalNodes = 0;
+    // eslint-disable-next-line no-undef
+    for (var wi = 0; wi < levels.length; wi++) totalNodes += levels[wi].levels.length; // eslint-disable-line no-undef
+    var numNodes = Math.max(1, totalNodes);
+
+    // Global index of the current player position
+    var globalBase = 0;
+    // eslint-disable-next-line no-undef
+    for (var wj = 0; wj < displayWorldIndex; wj++) globalBase += levels[wj].levels.length; // eslint-disable-line no-undef
+    var completedIndex = Math.min(globalBase + displayCompletedLevel, numNodes - 1);
+
     // eslint-disable-next-line no-undef
     var worldData = levels[displayWorldIndex];
-    var numLevels = worldData.levels.length;
-    // Clamp to available node positions
-    var numNodes = Math.min(numLevels, NODE_POSITIONS.length);
-    var completedIndex = Math.min(displayCompletedLevel, numNodes - 1);
+    currentNumTiles = Math.ceil(numNodes / NODE_POSITIONS.length) || 1;
+    var numTiles = currentNumTiles;
+    var totalVH = getVirtualHeight() * numTiles;
+    var baseMaxScroll = Math.max(0, totalVH - canvas.height);
+    maxScrollY = baseMaxScroll;
 
-    var virtualHeight = getVirtualHeight();
-    var maxScroll = Math.max(0, virtualHeight - canvas.height);
-
-    // Scroll toward dragon node
-    var dragonPos = nodeCanvas(completedIndex);
-    targetScrollY = virtualHeight - canvas.height / 2 - dragonPos.y;
-    if (targetScrollY < 0) targetScrollY = 0;
-    if (targetScrollY > maxScroll) targetScrollY = maxScroll;
-    scrollY += (targetScrollY - scrollY) * 0.08;
+    // Initial scroll animation: start at the bottom and ease to the current level.
+    // Cancelled as soon as the user touches the map.
+    if (autoScrolling && !isDragging) {
+      var dragonPos = nodeCanvas(completedIndex);
+      var desired = totalVH - canvas.height / 2 - dragonPos.y;
+      if (desired < 0) desired = 0;
+      if (desired > baseMaxScroll) desired = baseMaxScroll;
+      targetScrollY = desired;
+      scrollY += (targetScrollY - scrollY) * 0.08;
+      if (Math.abs(targetScrollY - scrollY) < 0.5) {
+        scrollY = targetScrollY;
+        autoScrolling = false;
+      }
+    }
+    scrollY = Math.max(0, Math.min(maxScrollY, scrollY));
 
     // --- scrolled content ---
     ctx.save();
-    ctx.translate(0, canvas.height - virtualHeight + scrollY);
+    ctx.translate(0, canvas.height - totalVH + scrollY);
 
-    drawBackground(virtualHeight);
+    drawBackground(numTiles);
     drawPath(numNodes, completedIndex);
 
     // Level nodes (path drawn first so nodes sit on top)
@@ -349,24 +464,32 @@ LernDieUhr.LevelMap = (function () {
         if (!preGame) drawGoldStar(p.x, p.y, NODE_RADIUS); // no star before playing
         drawDragon(p.x, p.y, timestamp);
       } else {
-        drawLockedNode(p.x, p.y);
+        drawLockedNode(p.x, p.y, i + 1);
       }
     }
 
-    // Door above the last node
-    var lastP = nodeCanvas(numNodes - 1);
-    var doorX = lastP.x;
-    var doorY = lastP.y - DRAGON_SIZE - NODE_RADIUS - 10;
-    if (worldCompleted) {
-      drawDoor(doorX, doorY, doorAngle);
-    } else {
-      drawClosedDoor(doorX, doorY);
+    // Doors at world boundaries: open for completed worlds, closed for future ones.
+    var accNodes = 0;
+    // eslint-disable-next-line no-undef
+    for (var wk = 0; wk < levels.length - 1; wk++) {
+      accNodes += levels[wk].levels.length; // eslint-disable-line no-undef
+      var boundaryP = nodeCanvas(accNodes - 1);
+      var doorX = boundaryP.x;
+      var doorY = boundaryP.y - DRAGON_SIZE - NODE_RADIUS - 10;
+      if (wk === displayWorldIndex && worldCompleted) {
+        drawDoor(doorX, doorY, doorAngle);
+      } else if (wk < displayWorldIndex) {
+        drawDoor(doorX, doorY, Math.PI / 2); // fully open — already completed
+      } else {
+        drawClosedDoor(doorX, doorY);
+      }
     }
 
     ctx.restore();
 
     // --- fixed UI ---
     drawTitle(worldData.world);
+    drawScrollHint();
     if (canContinue) drawContinueHint();
 
     // Door animation
@@ -422,36 +545,38 @@ LernDieUhr.LevelMap = (function () {
     doorAngle = 0;
     doorAnimDone = false;
     canContinue = preGame || !worldCompleted;
+    autoScrolling = true; // start at bottom and ease to current level
+    isDragging = false;
 
     var overlay = document.getElementById('LevelMap');
     overlay.style.display = 'block';
     canvas.width  = canvas.offsetWidth  || window.innerWidth;
     canvas.height = canvas.offsetHeight || window.innerHeight;
 
-    // Set initial scroll immediately (no easing jump)
-    var numLevels = levels[displayWorldIndex].levels.length; // eslint-disable-line no-undef
-    var numNodes = Math.min(numLevels, NODE_POSITIONS.length);
-    var idx = Math.min(displayCompletedLevel, numNodes - 1);
-    var virtualHeight = getVirtualHeight();
-    var dragonPos = nodeCanvas(idx);
-    var maxScroll = Math.max(0, virtualHeight - canvas.height);
-    scrollY = virtualHeight - canvas.height / 2 - dragonPos.y;
-    if (scrollY < 0) scrollY = 0;
-    if (scrollY > maxScroll) scrollY = maxScroll;
-    targetScrollY = scrollY;
+    // Always start at the bottom; the render loop eases up to the current level.
+    scrollY = 0;
+    targetScrollY = 0;
 
     if (animFrameId) window.cancelAnimationFrame(animFrameId);
     animFrameId = window.requestAnimationFrame(render);
 
-    overlay.addEventListener('click', handleContinue, false);
-    overlay.addEventListener('touchend', handleContinue, false);
+    overlay.addEventListener('mousedown',  onDragStart, false);
+    overlay.addEventListener('mousemove',  onDragMove,  false);
+    overlay.addEventListener('mouseup',    onDragEnd,   false);
+    overlay.addEventListener('touchstart', onDragStart, {passive: false});
+    overlay.addEventListener('touchmove',  onDragMove,  {passive: false});
+    overlay.addEventListener('touchend',   onDragEnd,   false);
   };
 
   LevelMap.prototype.hide = function () {
     var overlay = document.getElementById('LevelMap');
     overlay.style.display = 'none';
-    overlay.removeEventListener('click', handleContinue, false);
-    overlay.removeEventListener('touchend', handleContinue, false);
+    overlay.removeEventListener('mousedown',  onDragStart, false);
+    overlay.removeEventListener('mousemove',  onDragMove,  false);
+    overlay.removeEventListener('mouseup',    onDragEnd,   false);
+    overlay.removeEventListener('touchstart', onDragStart, false);
+    overlay.removeEventListener('touchmove',  onDragMove,  false);
+    overlay.removeEventListener('touchend',   onDragEnd,   false);
     if (animFrameId) {
       window.cancelAnimationFrame(animFrameId);
       animFrameId = null;
