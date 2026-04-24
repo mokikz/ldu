@@ -318,6 +318,9 @@ function levelRowContent(world, key) {
     '<td>' + data['label'] + '</td>' +
     '<td>' + data['startHour'] + ':' + data['startMinute'] + '</td>' +
     '<td>' + data['zielHour'] + ':' + data['zielMinute'] + '</td>' +
+    '<td>' + (data['handStyle'] || 'straight') + '</td>' +
+    '<td>' + (data['numeralStyle'] || 'arabic') + '</td>' +
+    '<td>' + (data['markStyle'] || 'all') + '</td>' +
     '<td>' +
       "<img src='images/delete.png' onclick='deleteLevel(" + world + "," + key + ")' title='Aufgabe L\xf6schen'> " +
       "<button type='button' onclick='editLevel(" + world + "," + key + ")' title='Aufgabe bearbeiten'>&#9998;</button> " +
@@ -328,6 +331,14 @@ function levelRowContent(world, key) {
 function editLevel(world, key) {
   var data = levels[world]['levels'][key];
   var row = document.getElementById('level_row_' + world + '_' + key);
+  var hs = data['handStyle'] || 'straight';
+  var ns = data['numeralStyle'] || 'arabic';
+  var ms = data['markStyle'] || 'all';
+  function sel(id, options, value) {
+    var s = '<select id="' + id + '">';
+    options.forEach(function(o) { s += '<option value="' + o + '"' + (o === value ? ' selected' : '') + '>' + o + '</option>'; });
+    return s + '</select>';
+  }
   row.innerHTML =
     '<td></td>' +
     '<td><input id="el_label" type="text" style="width:100%" value="' + data['label'].replace(/"/g, '&quot;') + '"></td>' +
@@ -339,6 +350,9 @@ function editLevel(world, key) {
       '<input id="el_zielHour" type="number" min="0" max="23" style="width:3.5em" value="' + data['zielHour'] + '">:' +
       '<input id="el_zielMinute" type="number" min="0" max="59" style="width:3.5em" value="' + data['zielMinute'] + '">' +
     '</td>' +
+    '<td>' + sel('el_handStyle', ['straight','classic','ornament','color'], hs) + '</td>' +
+    '<td>' + sel('el_numeralStyle', ['arabic','roman','none'], ns) + '</td>' +
+    '<td>' + sel('el_markStyle', ['all','hours','quarters','none'], ms) + '</td>' +
     '<td>' +
       "<button type='button' onclick='saveLevel(" + world + "," + key + ")'>&#10003; Speichern</button> " +
       "<button type='button' onclick='cancelEditLevel(" + world + "," + key + ")'>Abbrechen</button>" +
@@ -346,11 +360,14 @@ function editLevel(world, key) {
 }
 
 function saveLevel(world, key) {
-  levels[world]['levels'][key]['label']       = document.getElementById('el_label').value;
-  levels[world]['levels'][key]['startHour']   = parseInt(document.getElementById('el_startHour').value, 10);
-  levels[world]['levels'][key]['startMinute'] = parseInt(document.getElementById('el_startMinute').value, 10);
-  levels[world]['levels'][key]['zielHour']    = parseInt(document.getElementById('el_zielHour').value, 10);
-  levels[world]['levels'][key]['zielMinute']  = parseInt(document.getElementById('el_zielMinute').value, 10);
+  levels[world]['levels'][key]['label']        = document.getElementById('el_label').value;
+  levels[world]['levels'][key]['startHour']    = parseInt(document.getElementById('el_startHour').value, 10);
+  levels[world]['levels'][key]['startMinute']  = parseInt(document.getElementById('el_startMinute').value, 10);
+  levels[world]['levels'][key]['zielHour']     = parseInt(document.getElementById('el_zielHour').value, 10);
+  levels[world]['levels'][key]['zielMinute']   = parseInt(document.getElementById('el_zielMinute').value, 10);
+  levels[world]['levels'][key]['handStyle']    = document.getElementById('el_handStyle').value;
+  levels[world]['levels'][key]['numeralStyle'] = document.getElementById('el_numeralStyle').value;
+  levels[world]['levels'][key]['markStyle']    = document.getElementById('el_markStyle').value;
   document.getElementById('level_row_' + world + '_' + key).innerHTML = levelRowContent(world, key);
 }
 
@@ -388,7 +405,7 @@ function addLevel(world, key) {
 }
 
 function fillLevelRows(r, j, world, data, id) {
-  r[++j] ='<tr class="header item"><td/><td>Aufgabentext</td><td>Voreingestellte Zeit</td><td>Soll Zeit</td><td>Aktionen</td>';
+  r[++j] ='<tr class="header item"><td/><td>Aufgabentext</td><td>Voreingestellte Zeit</td><td>Soll Zeit</td><td>Zeiger</td><td>Ziffern</td><td>Striche</td><td>Aktionen</td>';
   for (var key=0, size=data.length; key<size; key++){
     r[++j] = '<tr class="item" id="level_row_' + world + '_' + key + '">';
     r[++j] = levelRowContent(world, key);
@@ -546,7 +563,7 @@ function saveAddWorld() {
     klasse: klasse,
     type: type,
     levels: [
-      { label: '', startHour: 0, startMinute: 0, zielHour: '0', zielMinute: '00' }
+      { label: '', startHour: 0, startMinute: 0, zielHour: '0', zielMinute: '00', handStyle: 'straight', numeralStyle: 'arabic', markStyle: 'all' }
     ]
   };
   levels.splice(insertAfter + 1, 0, newWorld);

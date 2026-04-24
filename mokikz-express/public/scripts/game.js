@@ -205,6 +205,11 @@ LernDieUhr.Game = (function () {
     const levelData = levelsOfWorld[currentLevel];
     // set clock to start position
     model.setTime(levelData['startHour'], levelData['startMinute']);
+    if (typeof clock !== 'undefined') {
+      clock.setHandStyle(levelData['handStyle'] || 'straight');
+      clock.setNumeralStyle(levelData['numeralStyle'] || 'arabic');
+      clock.setMarkStyle(levelData['markStyle'] || 'all');
+    }
     model.refreshViews();
 
     // set data according to level type

@@ -16,48 +16,71 @@ var levels = [
         "label": "Stell die Uhr auf zwei Uhr",
         "startHour": 10,
         "startMinute": 0,
-        "zielHour": "02",
-        "zielMinute": "00"
+        "zielHour": 2,
+        "zielMinute": 0,
+        "handStyle": "classic",
+        "numeralStyle": "roman",
+        "markStyle": "quarters"
       },
       {
         "label": "Stell die Uhr auf 3:00Uhr",
         "startHour": 12,
         "zielHour": 3,
-        "zielMinute": "00"
+        "zielMinute": 0,
+        "startMinute": null,
+        "handStyle": "ornament",
+        "numeralStyle": "roman",
+        "markStyle": "all"
       },
       {
         "label": "Stell die Uhr auf 10:00 Uhr",
         "startHour": 6,
         "startMinute": 0,
-        "zielHour": "10",
-        "zielMinute": "00"
+        "zielHour": 10,
+        "zielMinute": 0,
+        "handStyle": "color",
+        "numeralStyle": "arabic",
+        "markStyle": "hours"
       },
       {
         "label": "Stell die Uhr auf ein Uhr",
         "startHour": 12,
         "startMinute": 0,
-        "zielHour": "01",
-        "zielMinute": "00"
+        "zielHour": 1,
+        "zielMinute": 0,
+        "handStyle": "classic",
+        "numeralStyle": "none",
+        "markStyle": "all"
       },
       {
         "label": "Stell die Uhr auf 4:00Uhr",
         "startMinute": 0,
         "zielHour": 4,
-        "zielMinute": "00"
+        "zielMinute": 0,
+        "startHour": null,
+        "handStyle": "straight",
+        "numeralStyle": "none",
+        "markStyle": "quarters"
       },
       {
         "label": "Stell die Uhr auf 7:00 Uhr",
         "startHour": 6,
         "startMinute": 0,
-        "zielHour": "07",
-        "zielMinute": "00"
+        "zielHour": 7,
+        "zielMinute": 0,
+        "handStyle": "straight",
+        "numeralStyle": "none",
+        "markStyle": "hours"
       },
       {
         "label": "Stell die Uhr auf fünf Uhr",
         "startHour": 11,
         "startMinute": 0,
-        "zielHour": "05",
-        "zielMinute": "00"
+        "zielHour": 5,
+        "zielMinute": 0,
+        "handStyle": "straight",
+        "numeralStyle": "none",
+        "markStyle": "none"
       },
       {
         "label": "Stell die Uhr auf 9:00 Uhr",

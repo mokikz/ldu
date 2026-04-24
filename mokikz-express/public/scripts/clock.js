@@ -8,62 +8,49 @@ var LernDieUhr = window.LernDieUhr || {};
 LernDieUhr.Clock = (function(){
 
     //private properties
-    centerX = 0;
-    centerY = 0;
-    mouseX = 0; 
-    mouseY = 0; 
-    mouseDown=0;
-    alpha = 0;
-    lastAlpha = 0;
-    lastMouseX = undefined;
-    lastMouseY = undefined;
-    hour = 0;
-    minute = 0;
-    relX = 0;
-    relY = 0;
-    delta = 0; 
-    rad2deg = 360/(2*Math.PI);
-    direction = 1;
-    completedHours = 0;
-    pendingHour = 0;
-    newHour = 0;
-    attention = 0;
-    _me = undefined;
-    canvas = undefined;
-    context = undefined;
-    radius = 0;
-    size = 0;
-    model = undefined;
-    initialized = false;
+    var centerX = 0;
+    var centerY = 0;
+    var mouseX = 0;
+    var mouseY = 0;
+    var mouseDown = 0;
+    var alpha = 0;
+    var lastAlpha = 0;
+    var lastMouseX = undefined;
+    var lastMouseY = undefined;
+    var hour = 0;
+    var minute = 0;
+    var relX = 0;
+    var relY = 0;
+    var delta = 0;
+    var rad2deg = 360/(2*Math.PI);
+    var direction = 1;
+    var completedHours = 0;
+    var pendingHour = 0;
+    var newHour = 0;
+    var attention = 0;
+    var _me = undefined;
+    var canvas = undefined;
+    var context = undefined;
+    var radius = 0;
+    var size = 0;
+    var model = undefined;
+    var initialized = false;
+    var handStyle = 'straight'; // 'straight', 'classic', 'ornament', or 'color'
+    var numeralStyle = 'arabic'; // 'arabic', 'roman', or 'none'
+    var numeralPositions = 'all'; // 'all' (1-12) or 'quarters' (3, 6, 9, 12)
+    var markStyle = 'all'; // 'all', 'hours', 'quarters', or 'none'
+
+    var romanNumerals = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+
+    function getHourLabel(n) {
+        if (numeralStyle === 'none') return null;
+        if (numeralPositions === 'quarters' && n % 3 !== 0) return null;
+        if (markStyle === 'quarters' && n % 3 !== 0) return null;
+        if (numeralStyle === 'roman') return romanNumerals[n - 1];
+        return String(n);
+    }
 
     // private functions
- 
-function checkDirection (alpha, lastAlpha, direction) {
-  var dir = lastAlpha - alpha;
-  // direction clockwise and angle anticlockwise
-  if ((direction == 1)&&(dir < 0)) //clockwise
-    {
-    if (attention == 0) {
-      attention = 1; // remember direction change
-      }
-    else {
-      attention = 0;
-      direction = -1;
-      }
-    }
-  // direction anticlockwise and angle clockwise
-  if ((direction == -1)&&(dir > 0))
-    {
-    if (attention == 0) {
-      attention = 1; // remember direction change
-      }
-    else {
-      attention = 0;
-      direction = 1;
-      }
-    }
-  return direction;
-  } 
 
    function registerEvents() {
       console.log("Clock::registerEvents()");
@@ -307,6 +294,58 @@ function showTime(mouseX, mouseY) {
       draw();
       }
 
+    // Draws one clock hand. c2d must already be rotated to the hand's angle.
+    // length: tip distance from center (positive = upward after rotation)
+    // tailLength: distance behind center
+    // type: 'hour' or 'minute' (used for color style)
+    function drawHand(c2d, length, tailLength, type) {
+      if (handStyle === 'straight') {
+        c2d.beginPath();
+        c2d.moveTo(0, tailLength);
+        c2d.lineTo(0, -length);
+        c2d.stroke();
+
+      } else if (handStyle === 'classic') {
+        var w = (type === 'hour') ? 7 : 5;
+        c2d.beginPath();
+        c2d.moveTo(0, -length);           // tip
+        c2d.lineTo(w, 0);                 // right shoulder
+        c2d.lineTo(w * 0.5, tailLength);  // right tail
+        c2d.lineTo(-w * 0.5, tailLength); // left tail
+        c2d.lineTo(-w, 0);                // left shoulder
+        c2d.closePath();
+        c2d.fill();
+        c2d.stroke();
+
+      } else if (handStyle === 'ornament') {
+        var w = (type === 'hour') ? 7 : 5;
+        var ballR = (type === 'hour') ? 10 : 8;
+        c2d.beginPath();
+        c2d.moveTo(0, -length);
+        c2d.lineTo(w, 0);
+        c2d.lineTo(w * 0.5, tailLength);
+        c2d.lineTo(-w * 0.5, tailLength);
+        c2d.lineTo(-w, 0);
+        c2d.closePath();
+        c2d.fill();
+        c2d.stroke();
+        // counterweight ball
+        c2d.beginPath();
+        c2d.arc(0, tailLength * 0.6, ballR, 0, Math.PI * 2, true);
+        c2d.fill();
+        c2d.stroke();
+
+      } else if (handStyle === 'color') {
+        var origStroke = c2d.strokeStyle;
+        c2d.strokeStyle = (type === 'hour') ? '#CC2200' : '#0055CC';
+        c2d.beginPath();
+        c2d.moveTo(0, tailLength);
+        c2d.lineTo(0, -length);
+        c2d.stroke();
+        c2d.strokeStyle = origStroke;
+      }
+    }
+
     function draw() {
       if (!initialized) {
         console.log("Clock::draw() skipped");
@@ -368,28 +407,42 @@ function showTime(mouseX, mouseY) {
           ang=Math.PI/30*i;
           sang=Math.sin(ang);
           cang=Math.cos(ang);
-          //If modulus of divide by 5 is zero then draw an hour marker/numeral
-          if (i % 5 == 0) {
-            c2d.lineWidth=8;
-            sx=sang*innerFiveMinuteMark;
-            sy=cang* -1 * innerFiveMinuteMark;
-            ex=sang*outerMinuteMark;
-            ey=cang* -1 * outerMinuteMark;
+          var isHourMark    = (i % 5 == 0);
+          var isQuarterMark = (i % 15 == 0);
+
+          if (isHourMark) {
             nx=sang*innerNumber;
             ny=cang* -1 * innerNumber;
-            c2d.fillText(i/5,nx,ny);
-          //Else this is a minute marker
-          } else {
-            c2d.lineWidth=2;
-            sx=sang*innerMinuteMark;
-            sy=cang*innerMinuteMark;
-            ex=sang*outerMinuteMark;
-            ey=cang*outerMinuteMark;
+            var label = getHourLabel(i/5);
+            if (label !== null) c2d.fillText(label, nx, ny);
           }
-          c2d.beginPath();
-          c2d.moveTo(sx,sy);
-          c2d.lineTo(ex,ey);
-          c2d.stroke();
+
+          var drawMark = false;
+          if (markStyle === 'all') {
+            drawMark = true;
+          } else if (markStyle === 'hours' && isHourMark) {
+            drawMark = true;
+          } else if (markStyle === 'quarters' && isQuarterMark) {
+            drawMark = true;
+          }
+
+          if (drawMark) {
+            if (isHourMark) {
+              c2d.lineWidth=8;
+              sx=sang*innerFiveMinuteMark;
+              sy=cang* -1 * innerFiveMinuteMark;
+            } else {
+              c2d.lineWidth=2;
+              sx=sang*innerMinuteMark;
+              sy=cang* -1 * innerMinuteMark;
+            }
+            ex=sang*outerMinuteMark;
+            ey=cang* -1 * outerMinuteMark;
+            c2d.beginPath();
+            c2d.moveTo(sx,sy);
+            c2d.lineTo(ex,ey);
+            c2d.stroke();
+          }
         }
         //Fetch the current time
         //var ampm="AM";
@@ -412,25 +465,25 @@ function showTime(mouseX, mouseY) {
         //c2d.strokeRect(21,-14,44,27);
         //c2d.fillText(ampm,43,0);
         c2d.lineWidth=Math.floor(size*6/300);
+        c2d.fillStyle = '#222';
         c2d.save();
         //Draw clock pointers but this time rotate the canvas rather than
         //calculate x/y start/end positions.
         //
         //Draw hour hand
         c2d.rotate(Math.PI/6*(hour+(minute/60)+(sec/3600)));
-        c2d.beginPath();
-        c2d.moveTo(0,10);
-        c2d.lineTo(0,-1* hourHand);
-        c2d.stroke();
+        drawHand(c2d, hourHand, 10, 'hour');
         c2d.restore();
         c2d.save();
         //Draw minute hand
         c2d.rotate(Math.PI/30*(minute+(sec/60)));
-        c2d.beginPath();
-        c2d.moveTo(0,20);
-        c2d.lineTo(0,-1 * minuteHand);
-        c2d.stroke();
+        drawHand(c2d, minuteHand, 20, 'minute');
         c2d.restore();
+        // Center cap
+        c2d.beginPath();
+        c2d.arc(0, 0, Math.floor(size*5/300), 0, Math.PI*2, true);
+        c2d.fillStyle = (handStyle === 'color') ? '#882200' : '#222';
+        c2d.fill();
         //c2d.save();
         //Draw second hand
         //c2d.rotate(Math.PI/30*sec);
@@ -504,6 +557,38 @@ function showTime(mouseX, mouseY) {
       }
     Clock.prototype.refreshView = function() {
         return refreshView();
+        }
+    Clock.prototype.setHandStyle = function(style) {
+        if (style !== 'straight' && style !== 'classic' && style !== 'ornament' && style !== 'color') {
+            console.warn("Clock::setHandStyle() unknown style: " + style);
+            return;
+        }
+        handStyle = style;
+        draw();
+        }
+    Clock.prototype.setNumeralPositions = function(positions) {
+        if (positions !== 'all' && positions !== 'quarters') {
+            console.warn("Clock::setNumeralPositions() unknown value: " + positions);
+            return;
+        }
+        numeralPositions = positions;
+        draw();
+        }
+    Clock.prototype.setMarkStyle = function(style) {
+        if (style !== 'all' && style !== 'hours' && style !== 'quarters' && style !== 'none') {
+            console.warn("Clock::setMarkStyle() unknown style: " + style);
+            return;
+        }
+        markStyle = style;
+        draw();
+        }
+    Clock.prototype.setNumeralStyle = function(style) {
+        if (style !== 'arabic' && style !== 'roman' && style !== 'none') {
+            console.warn("Clock::setNumeralStyle() unknown style: " + style);
+            return;
+        }
+        numeralStyle = style;
+        draw();
         }
 
 
